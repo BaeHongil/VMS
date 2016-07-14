@@ -2,6 +2,7 @@
  * Created by manager on 2016-07-14.
  */
 var request = require('request');
+var item = require('../item');
 
 exports.getBaseUrl = function (ip, port) {
     var url = 'http://' + ip + ':' + port;
@@ -68,13 +69,26 @@ exports.getVhostAdminPort = function (baseUrl, vhostName) {
             });
         });
     });
+};
+
+function get() {
+    
 }
 
 var baseUrl = this.getBaseUrl('localhost', 8087);
 this.getVHostsName( baseUrl )
     .then( vhostsName => {
-        vhostAdminPortPromises = vhostsName.map( (v, i) => {
+        var vhosts = [];
+        vhostAdminPortPromises = vhostsName.map( (vhostName, i) => {
+            vhosts.push( new item.vhost(vhostName) );
             return this.getVhostAdminPort(baseUrl, v);
         });
+
+        Promise.all(vhostAdminPortPromises).then( vhostAdminPorts => {
+            vhosts.forEach( (vhost, i) => {
+                vhost.vhostAdminPort = vhostAdminPorts[i];
+            })
+        });
+
 
     });
