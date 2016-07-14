@@ -5,6 +5,6 @@ module.exports = class Application {
     constructor(appName, appType) {
         this.appName = appName;
         this.appType = appType;
-        this.streams = [];
+        this.incomingStreams = [];
     }
 };
