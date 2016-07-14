@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wowza Streaming Engine: WebSocket Test</title>
+
+    <script type="text/javascript">
+        var wsURL = "ws://localhost:8086/WebSocketTest";
+        var ws = null;
+        var wsIsOpen = false;
+
+        // convert hex string to binary array
+        function hex2bin(hex)
+        {
+            var bytes = new Uint8Array(hex.length/2);
+
+            for(var i=0; i< hex.length-1; i+=2)
+            {
+                bytes[i/2] = parseInt(hex.substr(i, 2), 16);
+            }
+
+            return bytes;
+        }
+
+        // browser generic get element by id
+        function getElement(id)
+        {
+            if (document.getElementById)
+            {
+                return document.getElementById(id);
+            }
+            else if (document.all)
+            {
+                return window.document.all[id];
+            }
+            else if (document.layers)
+            {
+                return window.document.layers[id];
+            }
+
+            return null;
+        }
+
+        // connection function
+        function connect()
+        {
+            if ("WebSocket" in window)
+            {
+                if (wsIsOpen)
+                {
+                    // if connected, close connection
+                    ws.close();
+                }
+                else
+                {
+                    // if not connected, open new WebSocket connection
+
+                    ws = new WebSocket(wsURL);
+                    ws.binaryType = 'arraybuffer'; // 'blob'
+
+                    ws.onopen = function()
+                    {
+                        // WebSocket is open
+                        wsIsOpen = true;
+                        updateControls();
+
+                        doLog("INFO: WebSocket is open: "+wsURL);
+                    };
+
+                    ws.onmessage = function (evt)
+                    {
+                        var msgData = evt.data;
+
+                        if (msgData instanceof ArrayBuffer) // binary arraybuffer
+                        {
+                            var dv = new DataView(msgData);
+                            var hexStr = '';
+
+                            for (var i = 0; i < dv.byteLength; i++)
+                            {
+                                var itemVal = (dv.getInt8(i) & 0x0FF).toString(16);
+                                if (itemVal.length < 2)
+                                    itemVal = '0'+itemVal;
+
+                                hexStr += itemVal;
+                            }
+
+                            doLog("INFO: Receive binary message [arraybuffer]: "+hexStr);
+                        }
+                        else if (msgData instanceof Blob) // binary blob
+                        {
+                            var reader = new FileReader();
+                            reader.addEventListener("loadend", function() {
+
+                                var dv = new DataView(reader.result);
+                                var hexStr = '';
+
+                                for (var i = 0; i < dv.byteLength; i++)
+                                {
+                                    var itemVal = (dv.getInt8(i) & 0x0FF).toString(16);
+                                    if (itemVal.length < 2)
+                                        itemVal = '0'+itemVal;
+
+                                    hexStr += itemVal;
+                                }
+
+                                doLog("INFO: Receive binary message [blob]: "+hexStr);
+                            });
+
+                            reader.readAsArrayBuffer(msgData);
+                        }
+                        else // text message
+                        {
+                            doLog("INFO: Receive text message: "+msgData);
+                        }
+                    };
+
+                    ws.onclose = function()
+                    {
+                        // WebSocket is close
+                        doLog("INFO: WebSocket connection is closed");
+
+                        wsIsOpen = false;
+                        updateControls();
+                        clearLog();
+                    };
+                }
+            }
+        }
+
+        // send message
+        function sendMessage()
+        {
+            var txtObj = getElement('txtMessage').value;
+
+            if (txtObj.charAt(0) == '#' && txtObj.length > 1)
+            {
+                txtObj = txtObj.substring(1, txtObj.length);
+                var binaryMsg = hex2bin(txtObj);
+
+                doLog("INFO: Send binary message: "+txtObj);
+                ws.send(binaryMsg);
+            }
+            else
+            {
+                doLog("INFO: Send text message: "+txtObj);
+                ws.send(txtObj);
+            }
+        }
+
+        // enable/disable controls
+        function updateControls()
+        {
+            getElement('butSend').disabled = !wsIsOpen;
+            getElement('txtMessage').disabled = !wsIsOpen;
+            getElement('butConnect').value = wsIsOpen?'Disconnect':'Connect';
+        }
+
+        // initialize the page
+        function doLoad()
+        {
+            updateControls();
+
+            if (!("WebSocket" in window))
+            {
+                doLog("WARN: WebSocket API is NOT supported by your Browser!");
+            }
+        }
+
+        // clear HTML logging
+        function clearLog()
+        {
+            getElement('spanLog').innerHTML = '';
+        }
+
+        // append log statements to HTML page
+        function doLog(logStr)
+        {
+            console.log(logStr);
+
+            getElement('spanLog').innerHTML += logStr+'<br/>';
+        }
+    </script>
+
+</head>
+<body onload="doLoad();">
+<input type="button" id="butConnect" value="Connect" onclick="connect();" /><br/><br/>
+<input type="button" id="butSend" value="Send Message" onclick="sendMessage();" />&nbsp;&nbsp;
+<input type="text" id="txtMessage" size="30" value="Hello, Wowza Streaming Engine!">&nbsp;&nbsp;(start binary data with #, ex. #01a437)<br/><br/>
+<span id="spanLog"></span>
+</body>
+</html>
