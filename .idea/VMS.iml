@@ -10,5 +10,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="VMS node_modules" level="project" />
     <orderEntry type="library" name="request-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="socket.io-DefinitelyTyped" level="application" />
   </component>
 </module>

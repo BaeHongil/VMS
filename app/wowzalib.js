@@ -55,126 +55,126 @@ exports.getVHostsName = function getVHostsName(baseUrl) {
         });
         resolve(vhostsName);
     });
-
-    /*var requestOption = {
-        method: 'GET',
-        url: url,
-        headers: {
-            'Accept': 'application/json'
-        }
-    };
-
-    return new Promise( (resolve, reject) => {
-        request(requestOption, (err, res, body) => {
-            if (err) {
-                reject(err);
-                return console.error(err);
-            }
-            if (res.statusCode != 200) {
-                reject('getVHosts statusCode : ' + res.statusCode);
-                return console.error('getVHosts statusCode : ' + res.statusCode);
-            }
-
-            var vhosts = JSON.parse(body);
-            // console.log(vhosts);
-            vhostsName = vhosts.vhosts.map( (v, i) => {
-                return v.id;
-            });
-            resolve(vhostsName);
-        });
-    });*/
 };
 
-exports.getVhostAdminPort = function getVhostAdminPort(baseUrl, vhostName) {
+exports.addVHostsName = function addVHostsName(baseUrl, vhosts) {
+    return exports.getVHostsName(baseUrl)
+        .then(vhostsName => {
+            var addVhostPortsPromises = vhostsName.map( (vhostName, i) => {
+                vhost = new item.vhost(vhostName);
+                vhosts.push(vhost);
+                return exports.addVhostPorts(baseUrl, vhost);
+            });
+
+            return Promise.all(addVhostPortsPromises);
+        });
+};
+
+exports.getVhostPorts = function getVhostPorts(baseUrl, vhostName) {
     var url = baseUrl + '/v2/servers/_defaultServer_/vhosts/' + vhostName;
 
     return requestGetRestApi(url, (resJson, resolve, reject) => {
-        // console.log(vhostsConfig);
-        resJson.HostPorts.forEach( (v, i) => {
-            if( v.type === 'Admin' )
-                return resolve(v.port);
+        var ports = {};
+        resJson.HostPorts.forEach( (resJsonHostPort, i) => {
+            if( resJsonHostPort.type === 'Admin' )
+                ports.vhostAdminPort = resJsonHostPort.port;
+            else if( resJsonHostPort.type === 'Streaming' )
+                ports.vhostStreamingPort = resJsonHostPort.port;
         });
+
+        return resolve(ports);
     });
-
-
-    /*var requestOption = {
-        method: 'GET',
-        url: url,
-        headers: {
-            'Accept': 'application/json'
-        }
-    };
-
-    return new Promise( (resolve, reject) => {
-        request(requestOption, (err, res, body) => {
-            if (err) {
-                reject(err);
-                return console.error(err);
-            }
-            if (res.statusCode != 200) {
-                reject('getVhostAdminPort statusCode : ' + res.statusCode);
-                return console.error('getVhostAdminPort statusCode : ' + res.statusCode);
-            }
-
-            var vhostsConfig = JSON.parse(body);
-            // console.log(vhostsConfig);
-            vhostsConfig.HostPorts.forEach( (v, i) => {
-                if( v.type === 'Admin' )
-                    return resolve(v.port);
-            });
-        });
-    });*/
 };
 
-exports.getApplications = function getApplications(baseUrl, vhostName) {
+exports.addVhostPorts = function addVhostPorts(baseUrl, vhost) {
+    return exports.getVhostPorts(baseUrl, vhost.vhostName)
+        .then( vhostPorts => {
+            vhost.vhostAdminPort = vhostPorts.vhostAdminPort;
+            vhost.vhostStreamingPort = vhostPorts.vhostStreamingPort;
+            return exports.addApplications(baseUrl, vhost);
+        } );
+};
+
+exports.getApplications = function getApplications(baseUrl, vhostName, isOnlyLive) {
     var url = baseUrl + '/v2/servers/_defaultServer_/vhosts/' + vhostName + '/applications';
 
     return requestGetRestApi(url, (resJson, resolve, reject) => {
         var jsonApplications = resJson.applications;
-        var Applications = jsonApplications.map((application, i) => {
-            return new item.application( application.id, application.appType );
+        var applications = [];
+        jsonApplications.forEach((application, i) => {
+            if( !isOnlyLive || application.appType === 'Live' )
+                applications.push( new item.application(application.id, application.appType) );
         });
 
-        resolve(Applications);
+        resolve(applications);
     });
+};
+
+exports.addApplications = function addApplications(baseUrl, vhost) {
+    return exports.getApplications(baseUrl, vhost.vhostName, true)
+        .then( applications => {
+            var addIncomingStreamsPromises = applications.map( (application, i) => {
+                vhost.applications.push( application );
+                return exports.addIncomingStreams(baseUrl, vhost.vhostName, application);
+            });
+
+            return Promise.all(addIncomingStreamsPromises);
+        } );
 };
 
 exports.getIncomingStreams = function getIncomingStreams(baseUrl, vhostName, appName) {
     var url = baseUrl + '/v2/servers/_defaultServer_/vhosts/' + vhostName + '/applications/' + appName + '/instances';
 
     return requestGetRestApi(url, (resJson, resolve, reject) => {
-        var jsonApplications = resJson.applications;
-        var Applications = jsonApplications.map((application, i) => {
-            return new item.application( application.id, application.appType );
+        var jsonInstanceList = resJson.instanceList;
+        var incomingStreams = jsonInstanceList.map( (jsonInstance, i) => {
+            var stream;
+            jsonInstance.incomingStreams.forEach( (jsonIncomingStream, i) => {
+                stream = new item.stream( jsonIncomingStream.applicationInstance, jsonIncomingStream.name );
+            });
+            return stream;
         });
 
-        resolve(Applications);
+        resolve(incomingStreams);
     });
+};
+
+exports.addIncomingStreams = function addIncomingStreams(baseUrl, vhostName, application) {
+    return exports.getIncomingStreams(baseUrl, vhostName, application.appName)
+        .then( incomingStreams => {
+            application.incomingStreams = incomingStreams;
+        });
+};
+
+exports.getJstreeData = function getJstreeData(vhosts) {
+
+    var data = vhosts.map( vhost => {
+        var vhostNode = {};
+        vhostNode.text = vhost.vhostName;
+        vhostNode.children = vhost.applications.map( application => {
+            var applicationNode = {};
+            applicationNode.text = application.appName;
+            applicationNode.children = application.incomingStreams.map( incomingStream => {
+                var incomingStreamNode = {};
+                incomingStreamNode.text = incomingStream.streamName;
+                incomingStreamNode.type = application.appType;
+
+                return incomingStreamNode;
+            });
+
+            return applicationNode;
+        });
+
+        return vhostNode;
+    });
+
+    return data;
 };
 
 var vhosts = [];
 var baseUrl = this.getBaseUrl('localhost', 8087);
-this.getVHostsName( baseUrl )
-    .then( vhostsName => {
-        var vhostAdminPortPromises = vhostsName.map( (vhostName, i) => {
-            vhosts.push( new item.vhost(vhostName) );
-            return this.getVhostAdminPort(baseUrl, vhostName);
-        });
-
-        return Promise.all(vhostAdminPortPromises);
-    })
-    .then( vhostAdminPorts => {
-        var applicationsPromises = vhosts.map((vhost, i) => {
-            vhost.vhostAdminPort = vhostAdminPorts[i];
-            return this.getApplications(baseUrl, vhost.vhostName);
-        });
-
-        return Promise.all(applicationsPromises);
-    })
-    .then( applications => {
-        vhosts.forEach( (vhost, i) => {
-            vhost.applications = applications[i];
-            console.log(vhost.applications);
-        });
-        console.log(vhosts);
+this.addVHostsName(baseUrl, vhosts)
+    .then( () => {
+        console.log(JSON.stringify(vhosts));
+        console.log( JSON.stringify( exports.getJstreeData(vhosts) ) );
     });

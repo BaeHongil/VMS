@@ -2,7 +2,7 @@
 <project version="4">
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$" libraries="{VMS node_modules}" />
-    <file url="PROJECT" libraries="{request-DefinitelyTyped}" />
+    <file url="PROJECT" libraries="{request-DefinitelyTyped, socket.io-DefinitelyTyped, socket.io-client-DefinitelyTyped}" />
     <includedPredefinedLibrary name="ECMAScript 6" />
     <includedPredefinedLibrary name="Node.js Core" />
   </component>

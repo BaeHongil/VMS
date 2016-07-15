@@ -45,27 +45,27 @@
 					
 					<div class="tabmenu">
 						<input id="sidebar-tab1" class="tab1" type="radio" name="tabs" checked>
-						<label for="sidebar-tab1">Managers</label>						
+						<label for="sidebar-tab1">Streams</label>
 						<input id="sidebar-tab2" class="tab2" type="radio" name="tabs">
-						<label for="sidebar-tab2">Designers</label>						
+						<label for="sidebar-tab2">Tab2</label>
 						<input id="sidebar-tab3" class="tab3" type="radio" name="tabs">
-						<label for="sidebar-tab3">Developers</label>
+						<label for="sidebar-tab3">Tab3</label>
 						
 						<section class="tab1-content">
-							<div id="container">
-								<ul>
-									<li>Root node
-										<ul>
-											<li>Child node 1</li>
-											<li>Child node 2</li>
-										</ul>
-									</li>
-								</ul>
-							</div>
+							<div id="vhostlist"></div>
 							<script>
-							$(function() {
-							  $('#container').jstree();
-							});
+								$(function() {
+									$('#vhostlist').jstree( { 'core' : {
+											'data': <%- JSON.stringify(vhosts) %>
+										},
+										"types" : {
+											"Live" : {
+												"icon" : "stylesheets/jstree/live-stream.png"
+											}
+										},
+										"plugins" : ["types"]
+									});
+								});
 							</script>	
 						</section>
 						<section class="tab2-content">
