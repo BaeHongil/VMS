@@ -21,7 +21,7 @@ function requestGetRestApi(url, reqJsonProcessor) {
             'Accept': 'application/json'
         }
     };
-    console.log(callerFuncName);
+    // console.log(callerFuncName);
 
     return new Promise( (resolve, reject) => {
         request(requestOption, (err, res, body) => {
