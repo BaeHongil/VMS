@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wowza Streaming Engine: WebSocket Test</title>
+    <link href="css/video-js.min.css" rel="stylesheet">
+
+</head>
+<body>
+    <video id=example-video width=600 height=300 class="video-js vjs-default-skin" controls>
+        <source src="#" type="application/x-mpegURL">
+    </video>
+    <button type="button" onclick="btnTest();">바꾸기</button>
+
+    <script src="js/jquery-3.0.0.min.js"></script>
+    <script src="js/video.min.js"></script>
+    <script src="js/videojs-contrib-hls.min.js"></script>
+    <script>
+        var player = videojs('example-video');
+
+
+        function btnTest() {
+            player.src({
+                src: "http://192.168.56.1:1935/livetest/myStream/playlist.m3u8?DVR",
+                type: 'application/x-mpegURL'
+            });
+            player.play();
+        }
+
+    </script>
+</body>
+</html>

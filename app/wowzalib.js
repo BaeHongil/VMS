@@ -7,7 +7,6 @@ var Application = require('../item/application');
 var Stream = require('../item/stream');
 var JstreeNode = require('../item/jstreenode');
 
-
 function getFuncName(caller) {
     var f = arguments.callee.caller;
     if(caller) f = f.caller;
@@ -162,43 +161,15 @@ exports.getVhosts = function getVhosts(ip, port) {
 exports.getJstreeData = function getJstreeData(vhosts) {
 
     var data = vhosts.map( vhost => {
-        var vhostNode = JstreeNode(vhost.vhostName, vhost.vhostName, 'VHost', {
-            vhostIp : vhost.vhostIp,
-            vhostStreamingPort : vhost.vhostStreamingPort
-        }, {
-            opened : true
-        }, vhost.applications.map( application => {
-            var applicationNode = new JstreeNode()
-            var applicationNode = {};
-            applicationNode.id = vhostNode.id + '>' + application.appName;
-            applicationNode.text = application.appName;
-            applicationNode.type = application.appType;
-            applicationNode.children = application.incomingStreams.map( incomingStream => {
-                var incomingStreamNode = {};
-                incomingStreamNode.text = incomingStream.streamName;
-                incomingStreamNode.type = application.appType + 'Stream';
-
-                return incomingStreamNode;
-            });
-
-            return applicationNode;
-        }));
-        /*var vhostNode = {};
-        vhostNode.id = vhost.vhostName;
-        vhostNode.text = vhost.vhostName;
-        vhostNode.type = 'VHost';
-        vhostNode.state = {
-            opened : true
-        };
+        var vhostNode = new JstreeNode(vhost.vhostName, vhost.vhostName, 'VHost');
+        vhostNode.state = {opened : true};
         vhostNode.data = {
             vhostIp : vhost.vhostIp,
             vhostStreamingPort : vhost.vhostStreamingPort
-        };*/
+        };
         vhostNode.children = vhost.applications.map( application => {
-            var applicationNode = {};
-            applicationNode.id = vhostNode.id + '>' + application.appName;
-            applicationNode.text = application.appName;
-            applicationNode.type = application.appType;
+            var nodeId = vhostNode.id + '>' + application.appName;
+            var applicationNode = new JstreeNode(nodeId, application.appName, application.appType);
             applicationNode.children = application.incomingStreams.map( incomingStream => {
                 var incomingStreamNode = {};
                 incomingStreamNode.text = incomingStream.streamName;
