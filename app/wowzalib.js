@@ -2,7 +2,11 @@
  * Created by manager on 2016-07-14.
  */
 var request = require('request');
-var item = require('../item');
+var Vhost = require('../item/vhost');
+var Application = require('../item/application');
+var Stream = require('../item/stream');
+var JstreeNode = require('../item/jstreenode');
+
 
 function getFuncName(caller) {
     var f = arguments.callee.caller;
@@ -45,23 +49,22 @@ exports.getBaseUrl = function getBaseUrl(ip, port) {
     return url;
 }
 
-exports.getVHostsName = function getVHostsName(baseUrl) {
+exports.getVHosts = function getVHosts(baseUrl) {
     var url = baseUrl + '/v2/servers/_defaultServer_/vhosts';
 
     return requestGetRestApi(url, (resJson, resolve, reject) => {
-        // console.log(vhosts);
-        vhostsName = resJson.vhosts.map( (vhost, i) => {
-            return vhost.id;
+        var vhosts = resJson.vhosts.map( (resVhost, i) => {
+            var vhost = new Vhost(resVhost.id, resVhost.connectingIPAddress);
+            return vhost;
         });
-        resolve(vhostsName);
+        resolve(vhosts);
     });
 };
 
-exports.addVHostsName = function addVHostsName(baseUrl, vhosts) {
-    return exports.getVHostsName(baseUrl)
-        .then(vhostsName => {
-            var addVhostPortsPromises = vhostsName.map( (vhostName, i) => {
-                vhost = new item.vhost(vhostName);
+exports.addVHosts = function addVHosts(baseUrl, vhosts) {
+    return exports.getVHosts(baseUrl)
+        .then(resVhosts => {
+            var addVhostPortsPromises = resVhosts.map( (vhost, i) => {
                 vhosts.push(vhost);
                 return exports.addVhostPorts(baseUrl, vhost);
             });
@@ -103,7 +106,7 @@ exports.getApplications = function getApplications(baseUrl, vhostName, isOnlyLiv
         var applications = [];
         jsonApplications.forEach((application, i) => {
             if( !isOnlyLive || application.appType === 'Live' )
-                applications.push( new item.application(application.id, application.appType) );
+                applications.push( new Application(application.id, application.appType) );
         });
 
         resolve(applications);
@@ -127,13 +130,15 @@ exports.getIncomingStreams = function getIncomingStreams(baseUrl, vhostName, app
 
     return requestGetRestApi(url, (resJson, resolve, reject) => {
         var jsonInstanceList = resJson.instanceList;
-        var incomingStreams = jsonInstanceList.map( (jsonInstance, i) => {
-            var stream;
+        var incomingStreams = [];
+        jsonInstanceList.forEach( (jsonInstance, i) => {
             jsonInstance.incomingStreams.forEach( (jsonIncomingStream, i) => {
-                stream = new item.stream( jsonIncomingStream.applicationInstance, jsonIncomingStream.name );
+                var stream = new Stream(jsonIncomingStream.applicationInstance, jsonIncomingStream.name);
+                incomingStreams.push(stream);
             });
-            return stream;
         });
+        console.log('incomingStreams');
+        console.log(incomingStreams);
 
         resolve(incomingStreams);
     });
@@ -146,18 +151,58 @@ exports.addIncomingStreams = function addIncomingStreams(baseUrl, vhostName, app
         });
 };
 
+exports.getVhosts = function getVhosts(ip, port) {
+    var baseUrl = exports.getBaseUrl('localhost', 8087);
+    var vhosts = [];
+    return exports.addVHosts(baseUrl, vhosts).then( () => {
+        return vhosts;
+    });
+};
+
 exports.getJstreeData = function getJstreeData(vhosts) {
 
     var data = vhosts.map( vhost => {
-        var vhostNode = {};
-        vhostNode.text = vhost.vhostName;
-        vhostNode.children = vhost.applications.map( application => {
+        var vhostNode = JstreeNode(vhost.vhostName, vhost.vhostName, 'VHost', {
+            vhostIp : vhost.vhostIp,
+            vhostStreamingPort : vhost.vhostStreamingPort
+        }, {
+            opened : true
+        }, vhost.applications.map( application => {
+            var applicationNode = new JstreeNode()
             var applicationNode = {};
+            applicationNode.id = vhostNode.id + '>' + application.appName;
             applicationNode.text = application.appName;
+            applicationNode.type = application.appType;
             applicationNode.children = application.incomingStreams.map( incomingStream => {
                 var incomingStreamNode = {};
                 incomingStreamNode.text = incomingStream.streamName;
-                incomingStreamNode.type = application.appType;
+                incomingStreamNode.type = application.appType + 'Stream';
+
+                return incomingStreamNode;
+            });
+
+            return applicationNode;
+        }));
+        /*var vhostNode = {};
+        vhostNode.id = vhost.vhostName;
+        vhostNode.text = vhost.vhostName;
+        vhostNode.type = 'VHost';
+        vhostNode.state = {
+            opened : true
+        };
+        vhostNode.data = {
+            vhostIp : vhost.vhostIp,
+            vhostStreamingPort : vhost.vhostStreamingPort
+        };*/
+        vhostNode.children = vhost.applications.map( application => {
+            var applicationNode = {};
+            applicationNode.id = vhostNode.id + '>' + application.appName;
+            applicationNode.text = application.appName;
+            applicationNode.type = application.appType;
+            applicationNode.children = application.incomingStreams.map( incomingStream => {
+                var incomingStreamNode = {};
+                incomingStreamNode.text = incomingStream.streamName;
+                incomingStreamNode.type = application.appType + 'Stream';
 
                 return incomingStreamNode;
             });
@@ -173,7 +218,7 @@ exports.getJstreeData = function getJstreeData(vhosts) {
 
 var vhosts = [];
 var baseUrl = this.getBaseUrl('localhost', 8087);
-this.addVHostsName(baseUrl, vhosts)
+this.addVHosts(baseUrl, vhosts)
     .then( () => {
         console.log(JSON.stringify(vhosts));
         console.log( JSON.stringify( exports.getJstreeData(vhosts) ) );

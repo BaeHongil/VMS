@@ -18,14 +18,14 @@ module.exports = function(server) {
     var websocket = io
         .of('/websocket')
         .on('connection', socket => {
-            websocket.emit('msg', {
+            /*websocket.emit('msg', {
                 text: 'hi'
-            });
+            });*/
         });
 
     if(ws) {
         ws.on('message', function (data, flags) {
-            websocket.emit('msg', JSON.parse(data));
+            websocket.emit('incomingStream', JSON.parse(data));
             console.log(data);
         });
     }

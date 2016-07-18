@@ -56,11 +56,14 @@
 							<script>
 								$(function() {
 									$('#vhostlist').jstree( { 'core' : {
-											'data': <%- JSON.stringify(vhosts) %>
+											'data': {
+												'url': 'http://localhost:3000/vms/vhost-tree-nodes',
+												'dataType': 'json'
+											}
 										},
 										"types" : {
 											"Live" : {
-												"icon" : "stylesheets/jstree/live-stream.png"
+												"icon" : "css/jstree/live-stream.png"
 											}
 										},
 										"plugins" : ["types"]

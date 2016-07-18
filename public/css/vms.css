@@ -1,0 +1,16 @@
+@media (min-width: 992px) {
+    html,body {height: 100%}
+    .container-fluid { height: 100%}
+    .row { height: 100%}
+}
+.sidebar {
+    height: 100%;
+    display: block;
+    padding: 10px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    border-right: 1px solid #eee;
+}
+.navbar {
+    margin: 0;
+}

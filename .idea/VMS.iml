@@ -12,5 +12,6 @@
     <orderEntry type="library" name="request-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="socket.io-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="socket.io-client-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="express-DefinitelyTyped" level="application" />
   </component>
 </module>

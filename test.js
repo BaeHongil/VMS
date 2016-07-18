@@ -1,16 +1,10 @@
 /**
  * Created by manager on 2016-07-15.
  */
-exports.createJstreeNode = function createJstreeNode(bool) {
-    console.log('createJstreeNode');
-    if( bool )
-        exports.createJstreeNode2(false);
-};
+var normalizedPath = require("path").join(__dirname, "routes");
 
-exports.createJstreeNode2 = function createJstreeNode2(bool) {
-    console.log('createJstreeNode2');
-    if( bool )
-        createJstreeNode(false);
-};
+require("fs").readdirSync(normalizedPath).forEach(function(file) {
+    require("./routes/" + file);
+});
 
-this.createJstreeNode(true);
+n
