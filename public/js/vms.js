@@ -1,6 +1,15 @@
 /**
  * Created by manager on 2016-07-14.
  */
+var videoNum = 9;
+var videoArr = new Array(videoNum);
+var isInVideoArr = new Array(videoNum);
+for(var i = 0; i < videoNum; i++) {
+    var videoId = 'video' + ( i+1 );
+    videoArr[i] = videojs(videoId);
+    isInVideoArr[i] = false;
+}
+
 var vhostTree = $('#vhost-tree');
 vhostTree.jstree({
     'core': {
@@ -25,8 +34,19 @@ vhostTree.jstree({
     'plugins': ['types']
 });
 vhostTree.on("changed.jstree", function (e, data) {
-    console.log("The selected nodes are:");
-    console.log( JSON.stringify( data.instance.get_node(data.selected[0]).data ) );
+    var selNode = data.instance.get_node(data.selected[0]);
+    var hlsSrc = selNode.data;
+    console.log(selNode);
+
+    if( selNode.type === 'LiveStream' ) {
+        var videoIndex = isInVideoArr.indexOf(false);
+        if( videoIndex != -1 ) {
+            isInVideoArr[videoIndex] = true;
+            var player = videoArr[videoIndex];
+
+            playVideo(player, hlsSrc);
+        }
+    }
 });
 
 var socket = io('http://localhost:3000/websocket');
@@ -38,14 +58,13 @@ socket.on('incomingStream', function(data) {
     if( data.isPublish ) {
         var vhostNode = vhostJstree.get_node(data.vhostName);
         var appNode = vhostJstree.get_node(appNodeId);
+        var streamData = getStreamAddr(vhostNode.data.vhostIp, vhostNode.data.vhostStreamingPort, data.appName, data.appInstanceName, data.streamName);
         console.log(appNode);
         var node = {
             id : streamNodeId,
             text : data.streamName,
             type : appNode.type + 'Stream',
-            data : 'http://' + vhostNode.data.vhostIp + ':' + vhostNode.data.vhostStreamingPort + '/'
-            + data.appName + '/' + data.appInstanceName + '/' + data.streamName
-            + '/playlist.m3u8'
+            data : streamData
         };
         vhostJstree.create_node(appNode, node, 'last');
     } else {
@@ -53,3 +72,18 @@ socket.on('incomingStream', function(data) {
     }
 });
 
+function playVideo(player, hlsSrc) {
+    player.src({
+        src: hlsSrc,
+        type: 'application/x-mpegURL'
+    });
+    player.play();
+}
+
+function getStreamAddr(ip, port, appName, appInstanceName, streamName) {
+    var addr = 'http://' + ip + ':' + port + '/'
+        + appName + '/' + appInstanceName + '/' + streamName
+        + '/playlist.m3u8';
+
+    return addr;
+}

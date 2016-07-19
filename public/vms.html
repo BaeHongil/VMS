@@ -1,100 +1,95 @@
-<!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>VMS Test</title>
-		<script src="js/jquery-3.0.0.min.js"></script>
-		<script src="js/jstree.min.js"></script>
-		<link href="css/vms_style.css" rel="stylesheet" type="text/css">
-		<link href="css/jstree/style.min.css" rel="stylesheet" type="text/css">
-	</head>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 위 3개의 메타 태그는 *반드시* head 태그의 처음에 와야합니다; 어떤 다른 콘텐츠들은 반드시 이 태그들 *다음에* 와야 합니다 -->
+    <title>VMS TEST</title>
 
-	<body>
-		<div id="mainwrapper">
-			<header> 
-				<!--**************************************************************************
-				Header starts here. It contains Logo and 3 navigation links. 
-				****************************************************************************-->
-				<div id="logo"><!-- <img src="logoImage.png" alt="sample logo"> --><!-- Company Logo text -->Logo</div>
-				<nav> <a href="#" title="Link">Nav1</a> <a href="#" title="Link">Nav2</a><a href="#" title="Link">Nav3</a> </nav>
-			</header>
-			<div id="content">
-				<div class="notOnDesktop"> 
-					<!-- This search box is displayed only in mobile and tablet laouts and not in desktop layouts -->
-					<input type="text" placeholder="Search">
-				</div>
-				<section id="mainContent"> 
-					<!--************************************************************************
-					Main Blog content starts here
-					****************************************************************************-->
-					<h1><!-- Blog title -->Post Title</h1>
-					<h3><!-- Tagline -->SOME AWESOME HERO TAGLINE</h3>
-					<div id="bannerImage"><img src="BlogPostAssets/images/SliderLayerImage.png" alt=""/></div>
-					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. </p>
-					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. </p>
-					<aside id="authorInfo"> 
-						<!-- The author information is contained here -->
-						<h2>Author Name</h2>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-					</aside>
-				</section>
-				<aside id="sidebar"> 
-					<!--************************************************************************
-					Sidebar starts here. It contains a searchbox, sample ad image and 6 links
-					****************************************************************************-->
-					
-					<div class="tabmenu">
-						<input id="sidebar-tab1" class="tab1" type="radio" name="tabs" checked>
-						<label for="sidebar-tab1">Managers</label>						
-						<input id="sidebar-tab2" class="tab2" type="radio" name="tabs">
-						<label for="sidebar-tab2">Designers</label>						
-						<input id="sidebar-tab3" class="tab3" type="radio" name="tabs">
-						<label for="sidebar-tab3">Developers</label>
-						
-						<section class="tab1-content">
-							<div id="container">
-								<ul>
-									<li>Root node
-										<ul>
-											<li>Child node 1</li>
-											<li>Child node 2</li>
-										</ul>
-									</li>
-								</ul>
-							</div>
-							<script>
-							$(function() {
-							  $('#container').jstree();
-							});
-							</script>	
-						</section>
-						<section class="tab2-content">
-							섹션2
-						</section>
-						<section class="tab3-content">
-							섹션3		
-						</section>
-						<section class="tab4-content">
-							섹션4
-						</section>
-					</div>				
-					
-				</aside>
-				<footer> 
-					<!--************************************************************************
-					Footer starts here
-					****************************************************************************-->
-					<article>
-						<h3>Footer1</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-					</article>
-					<article>
-						<h3>Footer2</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-					</article>
-				</footer>
-			</div>
-			<div id="footerbar"><!-- Small footerbar at the bottom --></div>
-		</div>
-	</body>
+    <!-- 부트스트랩 -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/jstree/style.min.css" rel="stylesheet" type="text/css">
+    <link href="css/video-js.min.css" rel="stylesheet">
+    <link href="css/vms.css" rel="stylesheet">
+
+    <!-- IE8 에서 HTML5 요소와 미디어 쿼리를 위한 HTML5 shim 와 Respond.js -->
+    <!-- WARNING: Respond.js 는 당신이 file:// 을 통해 페이지를 볼 때는 동작하지 않습니다. -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand">VMS</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 sidebar">
+                <ul class="nav nav-tabs nav-justified">
+                    <li class="active"><a href="#tab1" data-toggle="tab">서버정보</a></li>
+                    <li><a href="#tab2" data-toggle="tab">탭2</a></li>
+                    <li><a href="#tab3" data-toggle="tab">탭3</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade in active" id="tab1">
+                        <div id="vhost-tree"></div>
+                    </div>
+                    <div class="tab-pane fade" id="tab2">tab2 pane</div>
+                    <div class="tab-pane fade" id="tab3">tab3 pane</div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-4">
+                        <video id="video1" class="video-js vjs-default-skin" controls></video>
+                    </div>
+                    <div class="col-md-4">
+                        <video id="video2" class="video-js vjs-default-skin" controls></video>
+                    </div>
+                    <div class="col-md-4">
+                        <video id="video3" class="video-js vjs-default-skin" controls></video>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <video id="video4" class="video-js vjs-default-skin" controls></video>
+                    </div>
+                    <div class="col-md-4">
+                        <video id="video5" class="video-js vjs-default-skin" controls></video>
+                    </div>
+                    <div class="col-md-4">
+                        <video id="video6" class="video-js vjs-default-skin" controls></video>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <video id="video7" class="video-js vjs-default-skin" controls></video>
+                    </div>
+                    <div class="col-md-4">
+                        <video id="video8" class="video-js vjs-default-skin" controls></video>
+                    </div>
+                    <div class="col-md-4">
+                        <video id="video9" class="video-js vjs-default-skin" controls></video>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 -->
+    <script src="js/jquery-3.0.0.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jstree.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/video.min.js"></script>
+    <script src="js/videojs-contrib-hls.min.js"></script>
+    <script src="js/vms.js"></script>
+</body>
 </html>

@@ -174,6 +174,13 @@ exports.getJstreeData = function getJstreeData(vhosts) {
                 var incomingStreamNode = {};
                 incomingStreamNode.text = incomingStream.streamName;
                 incomingStreamNode.type = application.appType + 'Stream';
+                incomingStreamNode.data = getStreamAddr(
+                    vhost.vhostIp,
+                    vhost.vhostStreamingPort,
+                    application.appName,
+                    incomingStream.appInstanceName,
+                    incomingStream.streamName
+                );
 
                 return incomingStreamNode;
             });
@@ -187,10 +194,19 @@ exports.getJstreeData = function getJstreeData(vhosts) {
     return data;
 };
 
+function getStreamAddr(ip, port, appName, appInstanceName, streamName) {
+    var addr = 'http://' + ip + ':' + port + '/'
+        + appName + '/' + appInstanceName + '/' + streamName
+        + '/playlist.m3u8';
+
+    return addr;
+}
+
+/*
 var vhosts = [];
 var baseUrl = this.getBaseUrl('localhost', 8087);
 this.addVHosts(baseUrl, vhosts)
     .then( () => {
         console.log(JSON.stringify(vhosts));
         console.log( JSON.stringify( exports.getJstreeData(vhosts) ) );
-    });
+    });*/
