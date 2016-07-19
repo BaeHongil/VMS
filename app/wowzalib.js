@@ -168,12 +168,11 @@ exports.getJstreeData = function getJstreeData(vhosts) {
             vhostStreamingPort : vhost.vhostStreamingPort
         };
         vhostNode.children = vhost.applications.map( application => {
-            var nodeId = vhostNode.id + '>' + application.appName;
-            var applicationNode = new JstreeNode(nodeId, application.appName, application.appType);
+            var appNodeId = vhostNode.id + '>' + application.appName;
+            var applicationNode = new JstreeNode(appNodeId, application.appName, application.appType);
             applicationNode.children = application.incomingStreams.map( incomingStream => {
-                var incomingStreamNode = {};
-                incomingStreamNode.text = incomingStream.streamName;
-                incomingStreamNode.type = application.appType + 'Stream';
+                var streamNodeId = appNodeId + '>' + incomingStream.streamName;
+                var incomingStreamNode = new JstreeNode(streamNodeId, incomingStream.streamName, application.appType + 'Stream');
                 incomingStreamNode.data = getStreamAddr(
                     vhost.vhostIp,
                     vhost.vhostStreamingPort,

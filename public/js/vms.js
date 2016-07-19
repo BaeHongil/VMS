@@ -14,7 +14,7 @@ var vhostTree = $('#vhost-tree');
 vhostTree.jstree({
     'core': {
         'data': {
-            'url': 'http://localhost:3000/vms/vhost-tree-nodes',
+            'url': '/vms/vhost-tree-nodes',
             'dataType': 'json'
         },
         'check_callback' : true,
@@ -49,7 +49,7 @@ vhostTree.on("changed.jstree", function (e, data) {
     }
 });
 
-var socket = io('http://localhost:3000/websocket');
+var socket = io('/websocket');
 
 vhostJstree = vhostTree.jstree();
 socket.on('incomingStream', function(data) {
