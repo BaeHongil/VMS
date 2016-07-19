@@ -43,12 +43,12 @@ function requestGetRestApi(url, reqJsonProcessor) {
     });
 }
 
-exports.getBaseUrl = function getBaseUrl(ip, port) {
+function getBaseUrl(ip, port) {
     var url = 'http://' + ip + ':' + port;
     return url;
 }
 
-exports.getVHosts = function getVHosts(baseUrl) {
+exports.getVhosts = function getVhosts(baseUrl) {
     var url = baseUrl + '/v2/servers/_defaultServer_/vhosts';
 
     return requestGetRestApi(url, (resJson, resolve, reject) => {
@@ -60,8 +60,8 @@ exports.getVHosts = function getVHosts(baseUrl) {
     });
 };
 
-exports.addVHosts = function addVHosts(baseUrl, vhosts) {
-    return exports.getVHosts(baseUrl)
+exports.addVhosts = function addVhosts(baseUrl, vhosts) {
+    return exports.getVhosts(baseUrl)
         .then(resVhosts => {
             var addVhostPortsPromises = resVhosts.map( (vhost, i) => {
                 vhosts.push(vhost);
@@ -88,12 +88,23 @@ exports.getVhostPorts = function getVhostPorts(baseUrl, vhostName) {
     });
 };
 
+/*
 exports.addVhostPorts = function addVhostPorts(baseUrl, vhost) {
     return exports.getVhostPorts(baseUrl, vhost.vhostName)
         .then( vhostPorts => {
             vhost.vhostAdminPort = vhostPorts.vhostAdminPort;
             vhost.vhostStreamingPort = vhostPorts.vhostStreamingPort;
             return exports.addApplications(baseUrl, vhost);
+        } );
+};
+*/
+
+exports.addVhostPorts = function addVhostPorts(baseUrl, vhost) {
+    return exports.getVhostPorts(baseUrl, vhost.vhostName)
+        .then( vhostPorts => {
+            vhost.vhostAdminPort = vhostPorts.vhostAdminPort;
+            vhost.vhostStreamingPort = vhostPorts.vhostStreamingPort;
+            return vhost;
         } );
 };
 
@@ -115,8 +126,8 @@ exports.getApplications = function getApplications(baseUrl, vhostName, isOnlyLiv
 exports.addApplications = function addApplications(baseUrl, vhost) {
     return exports.getApplications(baseUrl, vhost.vhostName, true)
         .then( applications => {
+            vhost.applications = applications;
             var addIncomingStreamsPromises = applications.map( (application, i) => {
-                vhost.applications.push( application );
                 return exports.addIncomingStreams(baseUrl, vhost.vhostName, application);
             });
 
@@ -150,12 +161,48 @@ exports.addIncomingStreams = function addIncomingStreams(baseUrl, vhostName, app
         });
 };
 
-exports.getVhosts = function getVhosts(ip, port) {
-    var baseUrl = exports.getBaseUrl('localhost', 8087);
+exports.getVhostsObjOri = function getVhosts(ip, port) {
+    var baseUrl = getBaseUrl(ip, port);
     var vhosts = [];
-    return exports.addVHosts(baseUrl, vhosts).then( () => {
+    return exports.addVhosts(baseUrl, vhosts).then( () => {
         return vhosts;
     });
+};
+
+exports.getVhostsObj = function getVhosts(ip, port) {
+    var baseUrl = getBaseUrl(ip, port);
+    var vhosts = [];
+
+    var vhostsPromise = exports.getVhosts(baseUrl)
+        .then( resVhosts => {
+            vhosts = resVhosts;
+            var vhostPortsPromises = vhosts.map( (vhost, i) => {
+                var vhostPortsPromise = exports.addVhostPorts(baseUrl, vhost);
+                var applicationsPromise = exports.getApplications(baseUrl, vhost.vhostName, true)
+                    .then( applications => {
+                        vhost.applications = applications;
+                        var incomingStreamsPromises = applications.map( (application, i) => {
+                            var incomingStreamsPromise = exports.getIncomingStreams(baseUrl, vhost.vhostName, application.appName)
+                                .then( incomingStreams => {
+                                    application.incomingStreams = incomingStreams;
+                                });
+
+                            return incomingStreamsPromise;
+                        });
+
+                        return Promise.all(incomingStreamsPromises);
+                    } );
+
+                return Promise.all( [vhostPortsPromise, applicationsPromise] );
+            });
+
+            return Promise.all(vhostPortsPromises);
+        })
+        .then( () => {
+            return vhosts;
+        });
+
+    return vhostsPromise;
 };
 
 exports.getJstreeData = function getJstreeData(vhosts) {
@@ -201,11 +248,48 @@ function getStreamAddr(ip, port, appName, appInstanceName, streamName) {
     return addr;
 }
 
+exports.getWebsocketAddrs = function getWebsocketAddrs(ip, port) {
+
+    var baseUrl = getBaseUrl(ip, port);
+
+    var websocketAddrsPromise = exports.getVhosts(baseUrl)
+        .then( vhosts => {
+            var vhostPortsPromises = vhosts.map( (vhost, i) => {
+                var vhostPortsPromise = exports.addVhostPorts(baseUrl, vhost);
+                return vhostPortsPromise;
+            });
+
+            return Promise.all(vhostPortsPromises);
+        })
+        .then( vhosts => {
+            var websocketAddrs = vhosts.map( (vhost, i) => {
+                return getWebsocketAddr(vhost.vhostIp, vhost.vhostAdminPort);
+            });
+
+            return websocketAddrs;
+        });
+
+    return websocketAddrsPromise;
+};
+
+function getWebsocketAddr(ip, port) {
+    return 'ws://' + ip + ':' + port + '/websocket';
+}
+
+
 /*
-var vhosts = [];
-var baseUrl = this.getBaseUrl('localhost', 8087);
-this.addVHosts(baseUrl, vhosts)
-    .then( () => {
-        console.log(JSON.stringify(vhosts));
-        console.log( JSON.stringify( exports.getJstreeData(vhosts) ) );
-    });*/
+this.getVhostsObjOri('localhost', 8087)
+    .then( vhosts => {
+        console.log('ori' + JSON.stringify(vhosts));
+    });
+ */
+this.getVhostsObj('localhost', 8087)
+    .then( vhosts => {
+        console.log('new' + JSON.stringify(vhosts));
+    });
+
+this.getWebsocketAddrs('localhost', 8087)
+    .then( vhosts => {
+        console.log('new' + JSON.stringify(vhosts));
+    });
+

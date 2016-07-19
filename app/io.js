@@ -2,33 +2,36 @@
  * Created by BHI on 2016-07-16.
  */
 var WebSocket = require('ws');
-
-var ws = new WebSocket('ws://localhost:8086/websocket');
-ws.on('error', function (error) {
-    console.error('Wowza 서버와의 Websocket 연결 실패')
-});
-ws.on('open', function(){
-    console.log('open');
-});
-
+var wowzalib = require('../app/wowzalib');
 
 module.exports = function(server) {
     var io = require('socket.io')(server);
-
     var websocket = io
         .of('/websocket')
         .on('connection', socket => {
             /*websocket.emit('msg', {
-                text: 'hi'
-            });*/
+             text: 'hi'
+             });*/
         });
 
-    if(ws) {
-        ws.on('message', function (data, flags) {
-            websocket.emit('incomingStream', JSON.parse(data));
-            console.log(data);
+    var wowzaIp = process.argv[3];
+    var wowzaRestApiPort = process.argv[4];
+    wowzalib.getWebsocketAddrs(wowzaIp, wowzaRestApiPort)
+        .then( websocketAddrs => {
+            websocketAddrs.forEach( websocketAddr => {
+                var ws = new WebSocket(websocketAddr);
+                ws.on('error', function (error) {
+                    console.error('Wowza Vhost와의 Websocket 연결 실패')
+                });
+                ws.on('open', function(){
+                    console.log('Wowza Vhost와의 Websocket 연결 성공');
+                });
+                ws.on('message', function (data, flags) {
+                    websocket.emit('incomingStream', JSON.parse(data));
+                    console.log(data);
+                });
+            } );
         });
-    }
 
     return io;
 };

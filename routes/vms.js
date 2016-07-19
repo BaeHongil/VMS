@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var wowzalib = require('../app/wowzalib');
 
+var wowzaIp = process.argv[3];
+var wowzaRestApiPort = process.argv[4];
 
 router.get('/', function(req, res, next) {
     var vhosts = [];
@@ -12,7 +14,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/vhost-tree-nodes', function(req, res, next) {
-    wowzalib.getVhosts('localhost', 8087)
+    wowzalib.getVhostsObj(wowzaIp, wowzaRestApiPort)
         .then( vhosts => {
             console.log(vhosts);
             res.json( wowzalib.getJstreeData(vhosts) );
