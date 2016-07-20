@@ -15,6 +15,7 @@
     "serve-favicon": "~2.3.0",
     "request": "latest",
     "socket.io": "latest",
-    "ws": "latest"
+    "ws": "latest",
+    "locomote-video-player": "latest"
   }
 }
