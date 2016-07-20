@@ -5,16 +5,33 @@ html,body {
 .maincontent {
     height: 100%;
 }
-
-#video1 {
-    width:100% !important;
-    height:100% !important;
-}
-
 @media (min-width: 992px) {
     .container-fluid { height: 100%}
-    .row { height: 100%}
+    .row-md-1 { height: 100% }/*
+    .row-md-4 { height: 33% }
+    .col-md-4 { height: 100% }*/
+    /*.vms-video {
+        width: 100%;
+        height: 100%;
+    }*/
+    video {
+        width: 100%;
+        height: 100%;
+    }
 }
+.col-md-4 {
+    padding-left: 5px;
+    padding-right: 0;
+}
+.row {
+    padding-bottom: 5px;
+}
+.vms-video {
+    width: 100%;
+    height: auto;
+    padding-bottom: 56.25%;
+}
+
 .sidebar {
     height: 100%;
     display: block;
