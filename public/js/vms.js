@@ -35,7 +35,7 @@ vhostTree.jstree({
 });
 vhostTree.on("changed.jstree", function (e, data) {
     var selNode = data.instance.get_node(data.selected[0]);
-    var hlsSrc = selNode.data;
+    var rtmpSrc = selNode.data.rtmp;
     console.log(selNode);
 
     if( selNode.type === 'LiveStream' ) {
@@ -44,7 +44,7 @@ vhostTree.on("changed.jstree", function (e, data) {
             isInVideoArr[videoIndex] = true;
             var player = videoArr[videoIndex];
 
-            playVideo(player, hlsSrc);
+            playRtmp(player, rtmpSrc);
         }
     }
 });
@@ -52,27 +52,29 @@ vhostTree.on("changed.jstree", function (e, data) {
 var socket = io('/websocket');
 
 vhostJstree = vhostTree.jstree();
-socket.on('incomingStream', function(data) {
-    var appNodeId = data.vhostName + '>' + data.appName;
-    var streamNodeId = appNodeId + '>' + data.streamName;
-    if( data.isPublish ) {
-        var vhostNode = vhostJstree.get_node(data.vhostName);
+socket.on('incomingStream', function(streamData) {
+    var appNodeId = streamData.vhostName + '>' + streamData.appName;
+    var streamNodeId = appNodeId + '>' + streamData.streamName;
+    if( streamData.isPublish ) {
+        var vhostNode = vhostJstree.get_node(streamData.vhostName);
         var appNode = vhostJstree.get_node(appNodeId);
-        var streamData = getStreamAddr(vhostNode.data.vhostIp, vhostNode.data.vhostStreamingPort, data.appName, data.appInstanceName, data.streamName);
+        var streamNodeData = getStreamAddr(vhostNode.data.vhostIp, vhostNode.data.vhostStreamingPort,
+                streamData.appName, streamData.appInstanceName, streamData.streamName);
         console.log(appNode);
         var node = {
             id : streamNodeId,
-            text : data.streamName,
+            text : streamData.streamName,
             type : appNode.type + 'Stream',
-            data : streamData
+            data : streamNodeData
         };
         vhostJstree.create_node(appNode, node, 'last');
     } else {
+        vhostJstree.deselect_node(streamNodeId, true);
         vhostJstree.delete_node(streamNodeId);
     }
 });
 
-function playVideo(player, hlsSrc) {
+function playHls(player, hlsSrc) {
     player.src({
         src: hlsSrc,
         type: 'application/x-mpegURL'
@@ -80,10 +82,32 @@ function playVideo(player, hlsSrc) {
     player.play();
 }
 
+function playRtmp(player, rtmpSrc) {
+    player.src({
+        src: rtmpSrc,
+        type: 'rtmp/mp4'
+    });
+    player.play();
+}
+
 function getStreamAddr(ip, port, appName, appInstanceName, streamName) {
+    return {
+        hls : getHlsAddr(ip, port, appName, appInstanceName, streamName),
+        rtmp : getRtmpAddr(ip, port, appName, appInstanceName, streamName)
+    };
+}
+
+function getHlsAddr(ip, port, appName, appInstanceName, streamName) {
     var addr = 'http://' + ip + ':' + port + '/'
         + appName + '/' + appInstanceName + '/' + streamName
         + '/playlist.m3u8';
+
+    return addr;
+}
+
+function getRtmpAddr(ip, port, appName, appInstanceName, streamName) {
+    var addr = 'rtmp://' + ip + ':' + port + '/'
+        + appName + '/' + appInstanceName + '/' + streamName;
 
     return addr;
 }

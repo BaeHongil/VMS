@@ -36,7 +36,15 @@
                 type: 'application/x-mpegURL'
             });
             player.play();*/
-            playVideo(player, "rtsp://192.168.28.97:1935/live/cam.stream");
+            playRtmpVideo(player, "rtmp://192.168.56.1:1935/vod/mp4:sample.mp4");
+        }
+
+        function playRtmpVideo(player, rtmpSrc) {
+            player.src({
+                src: rtmpSrc,
+                type: 'rtmp/mp4'
+            });
+            player.play();
         }
 
         function playVideo(player, hlsSrc) {

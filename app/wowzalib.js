@@ -221,12 +221,12 @@ exports.getJstreeData = function getJstreeData(vhosts) {
                 var streamNodeId = appNodeId + '>' + incomingStream.streamName;
                 var incomingStreamNode = new JstreeNode(streamNodeId, incomingStream.streamName, application.appType + 'Stream');
                 incomingStreamNode.data = getStreamAddr(
-                    vhost.vhostIp,
-                    vhost.vhostStreamingPort,
-                    application.appName,
-                    incomingStream.appInstanceName,
-                    incomingStream.streamName
-                );
+                        vhost.vhostIp,
+                        vhost.vhostStreamingPort,
+                        application.appName,
+                        incomingStream.appInstanceName,
+                        incomingStream.streamName
+                    );
 
                 return incomingStreamNode;
             });
@@ -241,9 +241,23 @@ exports.getJstreeData = function getJstreeData(vhosts) {
 };
 
 function getStreamAddr(ip, port, appName, appInstanceName, streamName) {
+    return {
+        hls : getHlsAddr(ip, port, appName, appInstanceName, streamName),
+        rtmp : getRtmpAddr(ip, port, appName, appInstanceName, streamName)
+    };
+}
+
+function getHlsAddr(ip, port, appName, appInstanceName, streamName) {
     var addr = 'http://' + ip + ':' + port + '/'
         + appName + '/' + appInstanceName + '/' + streamName
         + '/playlist.m3u8';
+
+    return addr;
+}
+
+function getRtmpAddr(ip, port, appName, appInstanceName, streamName) {
+    var addr = 'rtmp://' + ip + ':' + port + '/'
+        + appName + '/' + appInstanceName + '/' + streamName;
 
     return addr;
 }
