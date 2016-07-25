@@ -10,7 +10,6 @@
     <!-- 부트스트랩 -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/jstree/style.min.css" rel="stylesheet" type="text/css">
-    <link href="css/video-js.min.css" rel="stylesheet">
     <link href="css/vms.css" rel="stylesheet">
 
     <!-- IE8 에서 HTML5 요소와 미디어 쿼리를 위한 HTML5 shim 와 Respond.js -->
@@ -28,7 +27,7 @@
             </div>
         </div>
     </nav>
-    <div class="container-fluid">
+    <div class="container-fluid main-container">
         <div class="row row-md-1">
             <div class="col-md-3 sidebar">
                 <ul class="nav nav-tabs nav-justified">
@@ -48,35 +47,35 @@
             <div class="col-md-9 maincontent">
                 <div class="row">
                     <div class="col-md-4">
-                        <video id="video1" class="video-js vjs-default-skin vms-video" controls></video>
+                        <div id="video1" class="vms-video"></div>
                     </div>
                     <div class="col-md-4">
-                        <video id="video2" class="video-js vjs-default-skin vms-video" controls></video>
+                        <div id="video2" class="vms-video"></div>
                     </div>
                     <div class="col-md-4">
-                        <video id="video3" class="video-js vjs-default-skin vms-video" controls></video>
+                        <div id="video3" class="vms-video"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-4">
-                        <video id="video4" class="video-js vjs-default-skin vms-video" controls></video>
+                        <div id="video4" class="vms-video"></div>
                     </div>
                     <div class="col-md-4">
-                        <video id="video5" class="video-js vjs-default-skin vms-video" controls></video>
+                        <div id="video5" class="vms-video"></div>
                     </div>
                     <div class="col-md-4">
-                        <video id="video6" class="video-js vjs-default-skin vms-video" controls></video>
+                        <div id="video6" class="vms-video"></div>
                     </div>
                 </div>
                 <div class="row row-md-4">
                     <div class="col-md-4">
-                        <video id="video7" class="video-js vjs-default-skin vms-video" controls></video>
+                        <div id="video7" class="vms-video"></div>
                     </div>
                     <div class="col-md-4">
-                        <video id="video8" class="video-js vjs-default-skin vms-video" controls></video>
+                        <div id="video8" class="vms-video"></div>
                     </div>
                     <div class="col-md-4">
-                        <video id="video9" class="video-js vjs-default-skin vms-video" controls></video>
+                        <div id="video9" class="vms-video"></div>
                     </div>
                 </div>
             </div>
@@ -84,12 +83,15 @@
     </div>
 
     <!-- 스크립트 -->
-    <script src="js/jquery-3.0.0.min.js"></script>
+    <script src="js/jquery-3.1.0.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jstree.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="js/video.min.js"></script>
-    <script src="js/videojs-contrib-hls.min.js"></script>
+    <script src="js/clappr.min.js"></script>
+    <script src="js/rtmp.min.js"></script>
+    <script src="js/zepto.min.js"></script>
+    <script src="js/zepto.dragswap.js"></script>
     <script src="js/vms.js"></script>
 </body>
 </html>

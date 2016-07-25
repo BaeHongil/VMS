@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "electron ./bin/www 3000 192.168.28.97 8087"
   },
   "dependencies": {
     "body-parser": "~1.15.1",

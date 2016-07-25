@@ -1,12 +1,30 @@
 /**
  * Created by manager on 2016-07-14.
  */
+
+/* Main 실행 부분 */
 var videoNum = 9;
 var videoArr = new Array(videoNum);
 var isInVideoArr = new Array(videoNum);
+var playerOpt = {
+    width: '100%',
+    height: '100%',
+    autoPlay: true,
+    chromeless: true,
+    playbackNotSupportedMessage : '에러 발생',
+    disableKeyboardShortcuts: true,
+    plugins: {'playback': [RTMP]},
+    rtmpConfig: {
+        swfPath: 'assets/RTMP.swf',
+        scaling:'stretch',
+        playbackType: 'live',
+        bufferTime: 1,
+        startLevel: 0,
+    }
+};
 for(var i = 0; i < videoNum; i++) {
-    var videoId = 'video' + ( i+1 );
-    videoArr[i] = videojs(videoId);
+    videoArr[i] = new Clappr.Player(playerOpt);
+
     isInVideoArr[i] = false;
 }
 
@@ -43,8 +61,9 @@ vhostTree.on("changed.jstree", function (e, data) {
         if( videoIndex != -1 ) {
             isInVideoArr[videoIndex] = true;
             var player = videoArr[videoIndex];
+            var playerId = '#video' + ( videoIndex+1 );
 
-            playRtmp(player, rtmpSrc);
+            playRtmp(player, playerId, rtmpSrc);
         }
     }
 });
@@ -74,6 +93,34 @@ socket.on('incomingStream', function(streamData) {
     }
 });
 
+$('.vms-video').draggable({
+    revert: "invalid",
+    helper: "original",
+    snap: true
+});
+$('.vms-video').droppable({
+    drop: function(event, ui) {
+        var src = ui.draggable;
+        var target = $(this);
+
+        var srcParent = src.parent();
+        var targetParent = target.parent();
+        //videoArr[0].attachTo(targetParent);
+        srcParent.append(target.detach().css({
+            top: 0,
+            left: 0
+        }));
+        targetParent.append(src.detach().css({
+            top: 0,
+            left: 0
+        }));
+    }
+});
+
+
+/* 함수 목록 시작 */
+
+/*
 function playHls(player, hlsSrc) {
     player.src({
         src: hlsSrc,
@@ -81,13 +128,11 @@ function playHls(player, hlsSrc) {
     });
     player.play();
 }
+*/
 
-function playRtmp(player, rtmpSrc) {
-    player.src({
-        src: rtmpSrc,
-        type: 'rtmp/mp4'
-    });
-    player.play();
+function playRtmp(player, playerId, rtmpSrc) {
+    player.setParentId(playerId);
+    player.load(rtmpSrc);
 }
 
 function getStreamAddr(ip, port, appName, appInstanceName, streamName) {
