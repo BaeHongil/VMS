@@ -292,18 +292,19 @@ function getWebsocketAddr(ip, port) {
 
 
 /*
-this.getVhostsObjOri('localhost', 8087)
-    .then( vhosts => {
-        console.log('ori' + JSON.stringify(vhosts));
-    });
+ this.getVhostsObjOri('localhost', 8087)
+ .then( vhosts => {
+ console.log('ori' + JSON.stringify(vhosts));
+ });
  */
-this.getVhostsObj('localhost', 8087)
-    .then( vhosts => {
-        console.log('new' + JSON.stringify(vhosts));
-    });
+/*
+ this.getVhostsObj('localhost', 8087)
+ .then( vhosts => {
+ console.log('new' + JSON.stringify(vhosts));
+ });
 
-this.getWebsocketAddrs('localhost', 8087)
-    .then( vhosts => {
-        console.log('new' + JSON.stringify(vhosts));
-    });
-
+ this.getWebsocketAddrs('localhost', 8087)
+ .then( vhosts => {
+ console.log('new' + JSON.stringify(vhosts));
+ });
+ */
