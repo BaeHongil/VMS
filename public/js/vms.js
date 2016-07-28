@@ -4,36 +4,45 @@
 
 function PlayerContainer(num, playerOpt) {
     this.players = new Array(num);
+    this.playerings = new Array(num);
     this.playerOpt = playerOpt;
 
-
-    for(var i = 0; i < this.players.length; i++)
+    for(var i = 0; i < this.players.length; i++) {
         this.players[i] = new Clappr.Player(playerOpt);
+        this.playerings[i] = false;
+    }
 }
 PlayerContainer.prototype = {
+    _getPlayerId : function (playerIndex) {
+        return '#video' + playerIndex;
+    },
+    _isPlaying : function (player) {
+        return player.isReady && player.isPlaying();
+    },
     _getRemainPlayerIndex : function () {
         for(var i = 0; i < this.players.length; i++) {
             var player = this.players[i];
-            if( player.isReady && player.isPlaying() )
+            if( this._isPlaying(player) )
                 continue;
             return i;
         }
         return -1;
     },
-    _playRtmp : function(player, playerId, rtmpSrc) {
+    _playRtmp : function(playerIndex, rtmpSrc) {
+        var player = this.players[playerIndex];
+        var playerId = this._getPlayerId(playerIndex);
+
         player.setParentId(playerId);
         player.load(rtmpSrc);
+        this.playerings[playerIndex] = true;
     },
     reloadPlayer : function(player) {
         player.load( player.options.sources );
     },
     playRtmpInRemain : function(rtmpSrc) {
-        var playerIndex = this._getRemainPlayerIndex();
-        if( playerIndex !== -1 ) {
-            var player = this.players[playerIndex];
-            var playerId = '#video' + playerIndex;
-            this._playRtmp(player, playerId, rtmpSrc);
-        }
+        var playerIndex = this.playerings.indexOf(false);
+        if( playerIndex !== -1 )
+            this._playRtmp(playerIndex, rtmpSrc);
 
         return playerIndex;
     },
@@ -41,13 +50,31 @@ PlayerContainer.prototype = {
         var src = this.players[srcIndex];
         this.players[srcIndex] = this.players[targetIndex];
         this.players[targetIndex] = src;
+
+        var srcPlaying = this.playerings[srcIndex];
+        this.playerings[srcIndex] = this.playerings[targetIndex];
+        this.playerings[targetIndex] = srcPlaying;
+
+        if( detectBrowser.isChrome ) {
+            if ( this.playerings[srcIndex] ) {
+                // this.reloadPlayer(this.players[srcIndex]);
+                this.players[srcIndex].destroy();
+                this.players[srcIndex].setParentId( this._getPlayerId(srcIndex) );
+            }
+            if ( this.playerings[targetIndex] ) {
+                // this.reloadPlayer(this.players[targetIndex]);
+                this.players[targetIndex].destroy();
+                this.players[targetIndex].setParentId( this._getPlayerId(targetIndex) );
+            }
+        }
+
+
     }
 };
 
 
-/* Main 실행 부분 */
 var videoNum = 9;
-var playerContainer = new PlayerContainer(9, {
+var playerContainer = new PlayerContainer(videoNum, {
     width: '100%',
     height: '100%',
     autoPlay: true,
@@ -63,32 +90,12 @@ var playerContainer = new PlayerContainer(9, {
         startLevel: 0,
     }
 });
-/*var videoArr = new Array(videoNum);
-var isInVideoArr = new Array(videoNum);
-var playerOpt = {
-    width: '100%',
-    height: '100%',
-    autoPlay: true,
-    chromeless: true,
-    playbackNotSupportedMessage : '에러 발생',
-    disableKeyboardShortcuts: true,
-    plugins: {'playback': [RTMP]},
-    rtmpConfig: {
-        swfPath: 'assets/RTMP.swf',
-        scaling:'stretch',
-        playbackType: 'live',
-        bufferTime: 1,
-        startLevel: 0,
-    }
-};
-for(var i = 0; i < videoNum; i++) {
-    videoArr[i] = new Clappr.Player(playerOpt);
 
-    isInVideoArr[i] = false;
-}*/
 
-var vhostTree = $('#vhost-tree');
-vhostTree.jstree({
+/**
+ * 서버정보 Jstree
+ */
+var vhostTree = $('#vhost-tree').jstree({
     'core': {
         'data': {
             'url': '/vms/vhost-tree-nodes',
@@ -116,43 +123,67 @@ vhostTree.on("changed.jstree", function (e, data) {
     console.log(selNode);
 
     if( selNode.type === 'LiveStream' ) {
-        playerContainer.playRtmpInRemain(rtmpSrc);
-        /*var videoIndex = isInVideoArr.indexOf(false);
-        if( videoIndex != -1 ) {
-            isInVideoArr[videoIndex] = true;
-            var player = videoArr[videoIndex];
-            var playerId = '#video' + ( videoIndex+1 );
-
-            playRtmp(player, playerId, rtmpSrc);
-        }*/
+        var index = playerContainer.playRtmpInRemain(rtmpSrc);
+        var parentNodeJson = {
+            id : index.toString(),
+            text : (index+1) + '번 영상',
+            state : {opened : true}
+        };
+        var parentNodeId = connectionJsTree.create_node(null, parentNodeJson, index);
+        var parentNode = connectionJsTree.get_node(parentNodeId);
+        var liveNodeJson = {
+            text : selNode.text,
+            type : selNode.type
+        };
+        connectionJsTree.create_node(parentNode, liveNodeJson, 'last');
     }
 });
+/**
+ * 영상접속정보 Jstree
+ */
+var connectionTree = $('#connection-tree').jstree( {
+    'core': {
+        'check_callback' : true,
+        "multiple" : false
+    },
+    'types': {
+        'LiveStream' : {
+            'icon': 'css/jstree/live-stream.png'
+        }
+    },
+    'plugins': ['types']
+});
+var connectionJsTree = connectionTree.jstree();
+
+
 
 var socket = io('/websocket');
-
-vhostJstree = vhostTree.jstree();
+var vhostJsTree = vhostTree.jstree();
 socket.on('incomingStream', function(streamData) {
     var appNodeId = streamData.vhostName + '>' + streamData.appName;
     var streamNodeId = appNodeId + '>' + streamData.streamName;
     if( streamData.isPublish ) {
-        var vhostNode = vhostJstree.get_node(streamData.vhostName);
-        var appNode = vhostJstree.get_node(appNodeId);
+        var vhostNode = vhostJsTree.get_node(streamData.vhostName);
+        var appNode = vhostJsTree.get_node(appNodeId);
         var streamNodeData = getStreamAddr(vhostNode.data.vhostIp, vhostNode.data.vhostStreamingPort,
-                streamData.appName, streamData.appInstanceName, streamData.streamName);
+            streamData.appName, streamData.appInstanceName, streamData.streamName);
         console.log(appNode);
-        var node = {
+        var nodeJson = {
             id : streamNodeId,
             text : streamData.streamName,
             type : appNode.type + 'Stream',
             data : streamNodeData
         };
-        vhostJstree.create_node(appNode, node, 'last');
+        vhostJsTree.create_node(appNode, nodeJson, 'last');
     } else {
-        vhostJstree.deselect_node(streamNodeId, true);
-        vhostJstree.delete_node(streamNodeId);
+        vhostJsTree.deselect_node(streamNodeId, true);
+        vhostJsTree.delete_node(streamNodeId);
     }
 });
 
+/**
+ *  영상 드래그앤드롭 기능
+ */
 $('.vms-video')
     .draggable({
         revert: "invalid",
@@ -161,13 +192,14 @@ $('.vms-video')
     })
     .droppable({
         drop: function(event, ui) {
-            var src = ui.draggable;
+            var src = $(ui.draggable);
             var target = $(this);
 
-            var srcParent = src.parent();
+            var srcIndex = parseInt( src.attr('id').charAt(5) );
+            var targetIndex = parseInt( target.attr('id').charAt(5) );
+
+            /*var srcParent = src.parent();
             var targetParent = target.parent();
-            console.log("src id : " + src.attr('id').charAt(5));
-            console.log("target id : " + target.attr('id').charAt(5));
             //videoArr[0].attachTo(targetParent);
             srcParent.append(target.css({
                 top: 0,
@@ -176,27 +208,54 @@ $('.vms-video')
             targetParent.append(src.css({
                 top: 0,
                 left: 0
-            }));
+            }));*/
 
+            var srcVideo = src.children().first();
+            var targetVideo = target.children().first();
+            src.css({
+                top: 0,
+                left: 0
+            }).append(targetVideo);
+            target.css({
+                top: 0,
+                left: 0
+            }).append(srcVideo);
+
+            // player index 위치 변경
+            playerContainer.swapPlayer(srcIndex, targetIndex);
+
+            // connectionTree 노드 위치 변경
+            var connectionTreeRootNode = connectionJsTree.get_node("#");
+            var srcConnectionNode = connectionJsTree.get_node(srcIndex);
+            var targetConnectionNode = connectionJsTree.get_node(targetIndex);
+            if( srcConnectionNode && targetConnectionNode ) // ID 중복 방지
+                connectionJsTree.set_id(targetConnectionNode, '-10');
+            if( srcConnectionNode )
+                swapJstreeNode(connectionJsTree, connectionTreeRootNode, srcConnectionNode, targetIndex);
+            if( targetConnectionNode )
+                swapJstreeNode(connectionJsTree, connectionTreeRootNode, targetConnectionNode, srcIndex);
         }
     });
 
 
+
+
+
 /* 함수 목록 시작 */
 
-/*
-function playHls(player, hlsSrc) {
-    player.src({
-        src: hlsSrc,
-        type: 'application/x-mpegURL'
-    });
-    player.play();
+function getNextNode(jsTree, id) {
+    var rootNode = jsTree.get_node("#");
+    for(var i = 0; i < rootNode.children.length; i++) {
+        if( rootNode.children[i] > id )
+            return i;
+    }
+    return rootNode.children.length;
 }
-*/
 
-function playRtmp(player, playerId, rtmpSrc) {
-    player.setParentId(playerId);
-    player.load(rtmpSrc);
+function swapJstreeNode(jsTree, rootNode, srcNode, targetIndex) {
+    jsTree.set_id(srcNode, targetIndex);
+    jsTree.rename_node(srcNode, (targetIndex + 1) + '번 영상');
+    jsTree.move_node(srcNode, rootNode, getNextNode(connectionJsTree, targetIndex));
 }
 
 function getStreamAddr(ip, port, appName, appInstanceName, streamName) {
