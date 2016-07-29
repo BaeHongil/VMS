@@ -27,15 +27,16 @@
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Monitoring<span class="sr-only">(current)</span></a></li>
-                    <li><a href="#">DVR</a></li>
-                    <li><a href="#">Manager</a></li>
+                    <li class="active"><a href="#streaming" data-toggle="tab">Monitoring<span class="sr-only">(current)</span></a></li>
+                    <li><a href="#ndvr" data-toggle="tab">DVR</a></li>
+                    <li><a href="#manager" data-toggle="tab">Manager</a></li>
                 </ul>
             </div><!-- /.navbar-collapse -->
         </div>
     </nav>
     <div class="container-fluid main-container">
         <div class="row row-md-1">
+
             <div class="col-md-3 sidebar">
                 <ul class="nav nav-tabs nav-justified">
                     <li class="active"><a href="#tab1" data-toggle="tab">서버정보</a></li>
@@ -53,41 +54,57 @@
                     <div class="tab-pane fade" id="tab3">tab3 pane</div>
                 </div>
             </div>
-            <div class="col-md-9 maincontent">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div id="video0" class="vms-video"></div>
+
+            <div class="tab-content">
+                <div class="col-md-9 tab-pane fade in active maincontent" id="streaming">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div id="video0" class="vms-video"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="video1" class="vms-video"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="video2" class="vms-video"></div>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <div id="video1" class="vms-video"></div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div id="video3" class="vms-video"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="video4" class="vms-video"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="video5" class="vms-video"></div>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <div id="video2" class="vms-video"></div>
+                    <div class="row row-md-4">
+                        <div class="col-md-4">
+                            <div id="video6" class="vms-video"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="video7" class="vms-video"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="video8" class="vms-video"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div id="video3" class="vms-video"></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div id="video4" class="vms-video"></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div id="video5" class="vms-video"></div>
+
+                <div class="col-md-9 tab-pane fade" id="ndvr">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div id="video10" class="vms-video"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="row row-md-4">
-                    <div class="col-md-4">
-                        <div id="video6" class="vms-video"></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div id="video7" class="vms-video"></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div id="video8" class="vms-video"></div>
-                    </div>
+
+                <div class="col-md-9 tab-pane fade" id="manager">
+                    Manager
                 </div>
             </div>
+
         </div>
     </div>
 
