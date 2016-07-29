@@ -15,6 +15,12 @@ function getFuncName(caller) {
     return RegExp.$1;
 }
 
+/**
+ * 특정 url로 비동기로 json request
+ * @param url 요청할 url
+ * @param reqJsonProcessor 받은 json을 처리할 콜백함수
+ * @returns {Promise}
+ */
 function requestGetRestApi(url, reqJsonProcessor) {
     var callerFuncName = getFuncName(true);
     var requestOption = {
@@ -48,6 +54,12 @@ function getBaseUrl(ip, port) {
     return url;
 }
 
+
+/**
+ * Vhosts 목록 획득
+ * @param baseUrl getBaseUrl함수로 얻은 url
+ * @returns {Promise}
+ */
 exports.getVhosts = function getVhosts(baseUrl) {
     var url = baseUrl + '/v2/servers/_defaultServer_/vhosts';
 
@@ -60,18 +72,12 @@ exports.getVhosts = function getVhosts(baseUrl) {
     });
 };
 
-exports.addVhosts = function addVhosts(baseUrl, vhosts) {
-    return exports.getVhosts(baseUrl)
-        .then(resVhosts => {
-            var addVhostPortsPromises = resVhosts.map( (vhost, i) => {
-                vhosts.push(vhost);
-                return exports.addVhostPorts(baseUrl, vhost);
-            });
-
-            return Promise.all(addVhostPortsPromises);
-        });
-};
-
+/**
+ * Vhosts 포트 목록 획득
+ * @param baseUrl getBaseUrl함수로 얻은 url
+ * @param vhostName vhost의 이름
+ * @return {Promise}
+ */
 exports.getVhostPorts = function getVhostPorts(baseUrl, vhostName) {
     var url = baseUrl + '/v2/servers/_defaultServer_/vhosts/' + vhostName;
 
@@ -88,17 +94,13 @@ exports.getVhostPorts = function getVhostPorts(baseUrl, vhostName) {
     });
 };
 
-/*
-exports.addVhostPorts = function addVhostPorts(baseUrl, vhost) {
-    return exports.getVhostPorts(baseUrl, vhost.vhostName)
-        .then( vhostPorts => {
-            vhost.vhostAdminPort = vhostPorts.vhostAdminPort;
-            vhost.vhostStreamingPort = vhostPorts.vhostStreamingPort;
-            return exports.addApplications(baseUrl, vhost);
-        } );
-};
-*/
 
+/**
+ * Vhost 객체에 vhosts port 객체를 추가
+ * @param baseUrl getBaseUrl함수로 얻은 url
+ * @param vhost port를 추가 vhost 객체
+ * @returns {Promise.<TResult>}
+ */
 exports.addVhostPorts = function addVhostPorts(baseUrl, vhost) {
     return exports.getVhostPorts(baseUrl, vhost.vhostName)
         .then( vhostPorts => {
@@ -108,6 +110,13 @@ exports.addVhostPorts = function addVhostPorts(baseUrl, vhost) {
         } );
 };
 
+/**
+ * Application 객체 획득
+ * @param baseUrl getBaseUrl함수로 얻은 url
+ * @param vhostName vhost의 이름
+ * @param isOnlyLive Live Application만 얻을 시에는 true, 아니면 false.
+ * @returns {Promise}
+ */
 exports.getApplications = function getApplications(baseUrl, vhostName, isOnlyLive) {
     var url = baseUrl + '/v2/servers/_defaultServer_/vhosts/' + vhostName + '/applications';
 
@@ -123,18 +132,13 @@ exports.getApplications = function getApplications(baseUrl, vhostName, isOnlyLiv
     });
 };
 
-exports.addApplications = function addApplications(baseUrl, vhost) {
-    return exports.getApplications(baseUrl, vhost.vhostName, true)
-        .then( applications => {
-            vhost.applications = applications;
-            var addIncomingStreamsPromises = applications.map( (application, i) => {
-                return exports.addIncomingStreams(baseUrl, vhost.vhostName, application);
-            });
-
-            return Promise.all(addIncomingStreamsPromises);
-        } );
-};
-
+/**
+ * Application의 현재 incoming stream 목록 획득
+ * @param baseUrl
+ * @param vhostName
+ * @param appName
+ * @returns {Promise}
+ */
 exports.getIncomingStreams = function getIncomingStreams(baseUrl, vhostName, appName) {
     var url = baseUrl + '/v2/servers/_defaultServer_/vhosts/' + vhostName + '/applications/' + appName + '/instances';
 
@@ -154,21 +158,12 @@ exports.getIncomingStreams = function getIncomingStreams(baseUrl, vhostName, app
     });
 };
 
-exports.addIncomingStreams = function addIncomingStreams(baseUrl, vhostName, application) {
-    return exports.getIncomingStreams(baseUrl, vhostName, application.appName)
-        .then( incomingStreams => {
-            application.incomingStreams = incomingStreams;
-        });
-};
-
-exports.getVhostsObjOri = function getVhosts(ip, port) {
-    var baseUrl = getBaseUrl(ip, port);
-    var vhosts = [];
-    return exports.addVhosts(baseUrl, vhosts).then( () => {
-        return vhosts;
-    });
-};
-
+/**
+ * stream, application이 모두 포함된 vhosts 객체 획득
+ * @param ip Wowza 서버 IP
+ * @param port Wowza REST API 포트
+ * @returns {Promise.<TResult>}
+ */
 exports.getVhostsObj = function getVhosts(ip, port) {
     var baseUrl = getBaseUrl(ip, port);
     var vhosts = [];
@@ -205,6 +200,11 @@ exports.getVhostsObj = function getVhosts(ip, port) {
     return vhostsPromise;
 };
 
+/**
+ * vhosts 객체를 Jstree에서 사용할 수 있는 Data 형식으로 변환
+ * @param vhosts getVhostsObj에서 얻은 vhosts 객체
+ * @returns {*|{}|U[]|JQuery|Array|any}
+ */
 exports.getJstreeData = function getJstreeData(vhosts) {
 
     var data = vhosts.map( vhost => {
@@ -262,8 +262,13 @@ function getRtmpAddr(ip, port, appName, appInstanceName, streamName) {
     return addr;
 }
 
+/**
+ * Wowza 서버 websocket 주소 획득
+ * @param ip Wowza 서버 IP
+ * @param port Wowza Admin 포트
+ * @returns {Promise.<TResult>}
+ */
 exports.getWebsocketAddrs = function getWebsocketAddrs(ip, port) {
-
     var baseUrl = getBaseUrl(ip, port);
 
     var websocketAddrsPromise = exports.getVhosts(baseUrl)
@@ -289,22 +294,3 @@ exports.getWebsocketAddrs = function getWebsocketAddrs(ip, port) {
 function getWebsocketAddr(ip, port) {
     return 'ws://' + ip + ':' + port + '/websocket';
 }
-
-
-/*
- this.getVhostsObjOri('localhost', 8087)
- .then( vhosts => {
- console.log('ori' + JSON.stringify(vhosts));
- });
- */
-/*
- this.getVhostsObj('localhost', 8087)
- .then( vhosts => {
- console.log('new' + JSON.stringify(vhosts));
- });
-
- this.getWebsocketAddrs('localhost', 8087)
- .then( vhosts => {
- console.log('new' + JSON.stringify(vhosts));
- });
- */
