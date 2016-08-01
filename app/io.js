@@ -2,7 +2,7 @@
  * Created by BHI on 2016-07-16.
  */
 var WebSocket = require('ws');
-var wowzalib = require('../app/wowzalib');
+var wowzalib = require('./wowza-lib');
 
 module.exports = function(server) {
     var io = require('socket.io')(server);

@@ -1,7 +1,12 @@
 html,body {
     width: 100%;
     height: 100%;
+    display: flex;
     flex-direction: column;
+    font-family: 'Malgun Gothic';
+}
+.navbar {
+    box-sizing: content-box;
 }
 .navbar-brand {
     color: white;
@@ -60,4 +65,15 @@ html,body {
 }
 .navbar {
     margin: 0;
+}
+#manager {
+    padding-left: 25px;
+    padding-right: 25px;
+}
+#manager-header {
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 5px;
+}
+#manager-sidebar {
+    margin-top: 8px;
 }

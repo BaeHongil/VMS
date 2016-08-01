@@ -117,27 +117,8 @@ var vhostTree = $('#vhost-tree').jstree({
     },
     'plugins': ['types']
 });
-vhostTree.on("changed.jstree", function (e, data) {
-    var selNode = data.instance.get_node(data.selected[0]);
-    var rtmpSrc = selNode.data.rtmp;
-    console.log(selNode);
+vhostTree.on('changed.jstree', onClickMonitoring);
 
-    if( selNode.type === 'LiveStream' ) {
-        var index = playerContainer.playRtmpInRemain(rtmpSrc);
-        var parentNodeJson = {
-            id : index.toString(),
-            text : (index+1) + '번 영상',
-            state : {opened : true}
-        };
-        var parentNodeId = connectionJsTree.create_node(null, parentNodeJson, index);
-        var parentNode = connectionJsTree.get_node(parentNodeId);
-        var liveNodeJson = {
-            text : selNode.text,
-            type : selNode.type
-        };
-        connectionJsTree.create_node(parentNode, liveNodeJson, 'last');
-    }
-});
 /**
  * 영상접속정보 Jstree
  */
@@ -154,8 +135,6 @@ var connectionTree = $('#connection-tree').jstree( {
     'plugins': ['types']
 });
 var connectionJsTree = connectionTree.jstree();
-
-
 
 var socket = io('/websocket');
 var vhostJsTree = vhostTree.jstree();
@@ -197,19 +176,6 @@ $('.vms-video')
 
             var srcIndex = parseInt( src.attr('id').charAt(5) );
             var targetIndex = parseInt( target.attr('id').charAt(5) );
-
-            /*var srcParent = src.parent();
-            var targetParent = target.parent();
-            //videoArr[0].attachTo(targetParent);
-            srcParent.append(target.css({
-                top: 0,
-                left: 0
-            }));
-            targetParent.append(src.css({
-                top: 0,
-                left: 0
-            }));*/
-
             var srcVideo = src.children().first();
             var targetVideo = target.children().first();
             src.css({
@@ -237,7 +203,55 @@ $('.vms-video')
         }
     });
 
+$('#vms-navbar').find('a').on('click', function () {
+    vhostTree.off('changed.jstree');
 
+    var navTabName = $(this).attr('data-item');
+    switch( navTabName ) {
+        case 'Monitoring':
+            vhostTree.on('changed.jstree', onClickMonitoring);
+            break;
+        case 'DVR':
+            vhostTree.on('changed.jstree', onClickDvr);
+            break;
+        case 'Manager':
+            vhostTree.on('changed.jstree', onClickManager);
+            break;
+    }
+
+});
+
+$('#manager-sidebar').find('a').each( function (index) {
+    var listItem = $(this);
+    var listItemName = listItem.attr('data-item');
+    switch( listItemName ) {
+        case 'streamfiles' :
+            listItem.on('click', function () {
+                $.ajax({
+                    type : 'GET',
+                    url : 'vms/_defaultVHost_/live/streamfiles',
+                    success : function (streamFiles) {
+                        var streamFilesTbody = $('#manager-streamfiles').find('tbody');
+                        streamFilesTbody.empty();
+                        streamFiles.forEach( function (streamFile, i) {
+                            var tr = $('<tr>');
+                            var tds = [
+                                $('<td>').text(streamFile),
+                                $('<td>').text('행동')
+                            ];
+                            tr.append(tds);
+                            tr.appendTo(streamFilesTbody);
+                        });
+
+                    },
+                    error : function (err) {
+                        console.error(err);
+                    }
+                });
+            });
+            break;
+    }
+});
 
 
 
@@ -278,4 +292,38 @@ function getRtmpAddr(ip, port, appName, appInstanceName, streamName) {
         + appName + '/' + appInstanceName + '/' + streamName;
 
     return addr;
+}
+
+function onClickMonitoring(e, data) {
+    var selNode = data.instance.get_node(data.selected[0]);
+    var rtmpSrc = selNode.data.rtmp;
+
+    if( selNode.type === 'LiveStream' ) {
+        var index = playerContainer.playRtmpInRemain(rtmpSrc);
+        var parentNodeJson = {
+            id : index.toString(),
+            text : (index+1) + '번 영상',
+            state : {opened : true}
+        };
+        var parentNodeId = connectionJsTree.create_node(null, parentNodeJson, index);
+        var parentNode = connectionJsTree.get_node(parentNodeId);
+        var liveNodeJson = {
+            text : selNode.text,
+            type : selNode.type
+        };
+        connectionJsTree.create_node(parentNode, liveNodeJson, 'last');
+    }
+}
+
+function onClickDvr(e, data) {
+
+}
+
+function onClickManager(e, data) {
+    var selNode = data.instance.get_node(data.selected[0]);
+    var selNodeType = selNode.type;
+
+    if( selNode.type === 'Live' ) {
+
+    }
 }

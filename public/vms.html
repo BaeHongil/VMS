@@ -25,11 +25,11 @@
             <div class="navbar-header">
                 <a href="#" class="navbar-brand">Video Management System</a>
             </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <div class="collapse navbar-collapse" id="vms-navbar">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="#streaming" data-toggle="tab">Monitoring<span class="sr-only">(current)</span></a></li>
-                    <li><a href="#ndvr" data-toggle="tab">DVR</a></li>
-                    <li><a href="#manager" data-toggle="tab">Manager</a></li>
+                    <li class="active"><a href="#streaming" data-toggle="tab" data-item="Monitoring" data-type="text">Monitoring<span class="sr-only">(current)</span></a></li>
+                    <li><a href="#ndvr" data-toggle="tab" data-item="DVR" data-type="text">DVR</a></li>
+                    <li><a href="#manager" data-toggle="tab" data-item="Manager" data-type="text">Manager</a></li>
                 </ul>
             </div><!-- /.navbar-collapse -->
         </div>
@@ -56,7 +56,7 @@
             </div>
 
             <div class="tab-content">
-                <div class="col-md-9 tab-pane fade in active maincontent" id="streaming">
+                <div class="col-md-9 tab-pane fade maincontent" id="streaming">
                     <div class="row">
                         <div class="col-md-4">
                             <div id="video0" class="vms-video"></div>
@@ -100,8 +100,34 @@
                     </div>
                 </div>
 
-                <div class="col-md-9 tab-pane fade" id="manager">
-                    Manager
+                <div class="col-md-9 tab-pane fade in active" id="manager">
+                    <div id="manager-header" class="row">
+                        <h2><strong>관리자 기능 </strong><small>스트림 파일</small></h2>
+                    </div>
+                    <div class="row">
+                        <div id="manager-contents" class="col-md-9">
+                            <div id="manager-streamfiles">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>스트림 파일명</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="manager-sidebar" class="col-md-3 list-group">
+                            <a class="list-group-item active" href="#" data-item="streamfiles" data-type="text">스트림 파일</a>
+                            <a class="list-group-item" href="#">Link1</a>
+                            <a class="list-group-item" href="#">Link1</a>
+                            <a class="list-group-item" href="#">Link1</a>
+                            <a class="list-group-item" href="#">Link1</a>
+                            <a class="list-group-item" href="#">Link1</a>
+                            <a class="list-group-item" href="#">Link1</a>
+                        </div>
+                    </div>
                 </div>
             </div>
 

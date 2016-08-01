@@ -48,11 +48,13 @@ function requestGetRestApi(url, reqJsonProcessor) {
         });
     });
 }
+exports.requestGetRestApi = requestGetRestApi;
 
 function getBaseUrl(ip, port) {
     var url = 'http://' + ip + ':' + port;
     return url;
 }
+exports.getBaseUrl = getBaseUrl;
 
 
 /**
