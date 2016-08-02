@@ -72,6 +72,147 @@ PlayerContainer.prototype = {
     }
 };
 
+function NavBarMenu(navBarId, activeMenu, vhostTree, connectionTree) {
+    this.navBar = $(navBarId);
+    this._activeMenu = activeMenu;
+    this.vhostTree = vhostTree;
+    this.connectionTree = connectionTree;
+    this.vhostJsTree = vhostTree.jstree();
+    this.connectionJsTree = vhostTree.jstree();
+
+    /**
+     * 상단 네비게이션 바 메뉴 onclick
+     */
+    var navBarMenu = this;
+    this.navBar.find('a').on('click', function () {
+        var navTabName = $(this).attr('data-item');
+        navBarMenu.setActiveMenu(navTabName);
+    });
+}
+NavBarMenu.prototype = {
+    setActiveMenu : function (activeMenu) {
+        this._activeMenu = activeMenu;
+        this.vhostTree.off('changed.jstree');
+        switch( this._activeMenu ) {
+            case 'Monitoring':
+                this._setActiveMonitoring();
+                break;
+            case 'DVR':
+                this._setActiveDvr();
+                break;
+            case 'Manager':
+                this._setActiveManager();
+                break;
+        }
+    },
+    _setActiveMonitoring : function () {
+        vhostTree.on('changed.jstree', function(e, data) {
+            var selNode = data.instance.get_node(data.selected[0]);
+            var rtmpSrc = selNode.data.rtmp;
+
+            if( selNode.type === 'LiveStream' ) {
+                var index = playerContainer.playRtmpInRemain(rtmpSrc);
+                var parentNodeJson = {
+                    id : index.toString(),
+                    text : (index+1) + '번 영상',
+                    state : {opened : true}
+                };
+                var parentNodeId = connectionJsTree.create_node(null, parentNodeJson, index);
+                var parentNode = connectionJsTree.get_node(parentNodeId);
+                var liveNodeJson = {
+                    text : selNode.text,
+                    type : selNode.type
+                };
+                connectionJsTree.create_node(parentNode, liveNodeJson, 'last');
+            }
+        });
+    },
+    _setActiveDvr : function () {
+        vhostTree.on('changed.jstree', function(e, data) {
+
+        });
+    },
+    _setActiveManager : function () {
+        var selNode = vhostJsTree.get_selected(true);
+        vhostTree.on('changed.jstree', function(e, data) {
+            var selNode = data.instance.get_node(data.selected[0]);
+
+            switch(selNode.type) {
+                case 'VHost':
+
+                    break;
+                case 'Live':
+                    break;
+                case 'LiveStream':
+                    break;
+            }
+        });
+    }
+};
+
+function Manager(managerHeaderId, managerSideBarId, streamFilesContentId, transcoderContentId) {
+    this.managerHeader = $(managerHeaderId);
+    this.managerSideBar = $(managerSideBarId);
+    this.streamFilesContent = $(streamFilesContentId);
+    this.transcoderContent = $(transcoderContentId);
+    this.vhostName = null;
+    this.appType = null;
+    this.appName = null;
+    this.activeSideBarMenu = 'streamfiles'; // streamfiles, transcoder
+    /**
+     * 관리자기능 사이드바 onclick
+     */
+    var Manager = this;
+    this.managerSideBar.find('.list-group-item').each( function (index) {
+        var listItem = $(this);
+        var listItemName = listItem.attr('data-item');
+
+        listItem.on('click', function () {
+            listItem.siblings().removeClass("active");
+            listItem.addClass("active");
+        });
+        switch( listItemName ) {
+            case 'streamfiles' :
+                Manager._onClickStreamFilesListItem(listItem);
+                break;
+            case 'transcoder' :
+                Manager._onClickTranscoder(listItem);
+                break;
+        }
+    });
+}
+Manager.prototype = {
+    _onClickStreamFilesListItem : function (listItem) {
+        var Manager = this;
+        listItem.on('click', function () {
+            $.ajax({
+                type : 'GET',
+                url : 'vms/_defaultVHost_/live/streamfiles',
+                success : function (streamFiles) {
+                    var streamFilesTbody = Manager.streamFilesContent.find('tbody');
+                    streamFilesTbody.empty();
+                    streamFiles.forEach( function (streamFile, i) {
+                        var tr = $('<tr>');
+                        var tds = [
+                            $('<td>').text(streamFile),
+                            $('<td>').text('행동')
+                        ];
+                        tr.append(tds);
+                        tr.appendTo(streamFilesTbody);
+                    });
+
+                },
+                error : function (err) {
+                    console.error(err);
+                }
+            });
+        });
+    },
+    _onClickTranscoder : function (listItem) {
+
+    }
+};
+
 
 var videoNum = 9;
 var playerContainer = new PlayerContainer(videoNum, {
@@ -90,8 +231,6 @@ var playerContainer = new PlayerContainer(videoNum, {
         startLevel: 0,
     }
 });
-
-
 /**
  * 서버정보 Jstree
  */
@@ -117,8 +256,7 @@ var vhostTree = $('#vhost-tree').jstree({
     },
     'plugins': ['types']
 });
-vhostTree.on('changed.jstree', onClickMonitoring);
-
+var vhostJsTree = vhostTree.jstree();
 /**
  * 영상접속정보 Jstree
  */
@@ -136,8 +274,13 @@ var connectionTree = $('#connection-tree').jstree( {
 });
 var connectionJsTree = connectionTree.jstree();
 
+var navBarMenu = new NavBarMenu('#vms-navbar', 'Monitoring', vhostTree, connectionTree);
+var manager = new Manager('manager-header', '#manager-sidebar', '#manager-streamfiles', '#manager-transcoder');
+
+/**
+ * 웹소켓 통신
+ */
 var socket = io('/websocket');
-var vhostJsTree = vhostTree.jstree();
 socket.on('incomingStream', function(streamData) {
     var appNodeId = streamData.vhostName + '>' + streamData.appName;
     var streamNodeId = appNodeId + '>' + streamData.streamName;
@@ -165,8 +308,8 @@ socket.on('incomingStream', function(streamData) {
  */
 $('.vms-video')
     .draggable({
-        revert: "invalid",
-        helper: "original",
+        revert: 'invalid',
+        helper: 'original',
         snap: true
     })
     .droppable({
@@ -203,24 +346,12 @@ $('.vms-video')
         }
     });
 
-$('#vms-navbar').find('a').on('click', function () {
-    vhostTree.off('changed.jstree');
 
-    var navTabName = $(this).attr('data-item');
-    switch( navTabName ) {
-        case 'Monitoring':
-            vhostTree.on('changed.jstree', onClickMonitoring);
-            break;
-        case 'DVR':
-            vhostTree.on('changed.jstree', onClickDvr);
-            break;
-        case 'Manager':
-            vhostTree.on('changed.jstree', onClickManager);
-            break;
-    }
 
-});
-
+/**
+ * 관리자기능 사이드바 onclick
+ */
+/*
 $('#manager-sidebar').find('a').each( function (index) {
     var listItem = $(this);
     var listItemName = listItem.attr('data-item');
@@ -252,13 +383,21 @@ $('#manager-sidebar').find('a').each( function (index) {
             break;
     }
 });
+*/
+
+/**
+ * 리스트 그룹 아이템 onclick 시에 active 변경
+ */
+$('.list-group-item').on('click', function (e) {
+    $(this).siblings().removeClass("active");
+    $(this).addClass("active");
+});
 
 
 
 /* 함수 목록 시작 */
-
 function getNextNode(jsTree, id) {
-    var rootNode = jsTree.get_node("#");
+    var rootNode = jsTree.get_node('#');
     for(var i = 0; i < rootNode.children.length; i++) {
         if( rootNode.children[i] > id )
             return i;
@@ -292,38 +431,4 @@ function getRtmpAddr(ip, port, appName, appInstanceName, streamName) {
         + appName + '/' + appInstanceName + '/' + streamName;
 
     return addr;
-}
-
-function onClickMonitoring(e, data) {
-    var selNode = data.instance.get_node(data.selected[0]);
-    var rtmpSrc = selNode.data.rtmp;
-
-    if( selNode.type === 'LiveStream' ) {
-        var index = playerContainer.playRtmpInRemain(rtmpSrc);
-        var parentNodeJson = {
-            id : index.toString(),
-            text : (index+1) + '번 영상',
-            state : {opened : true}
-        };
-        var parentNodeId = connectionJsTree.create_node(null, parentNodeJson, index);
-        var parentNode = connectionJsTree.get_node(parentNodeId);
-        var liveNodeJson = {
-            text : selNode.text,
-            type : selNode.type
-        };
-        connectionJsTree.create_node(parentNode, liveNodeJson, 'last');
-    }
-}
-
-function onClickDvr(e, data) {
-
-}
-
-function onClickManager(e, data) {
-    var selNode = data.instance.get_node(data.selected[0]);
-    var selNodeType = selNode.type;
-
-    if( selNode.type === 'Live' ) {
-
-    }
 }

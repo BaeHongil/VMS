@@ -4,7 +4,12 @@
 
 var arr = [1,2,3,4,5];
 
-arr.some( function (v, i) {
-    console.log(v);
-    return false;
-});
+function aaa() {
+    this.init();
+}
+aaa.prototype = {
+    init : function () {
+        console.log('init');
+    }
+};
+new aaa();
