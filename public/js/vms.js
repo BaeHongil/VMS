@@ -68,7 +68,6 @@ PlayerContainer.prototype = {
             }
         }
 
-
     }
 };
 
@@ -213,139 +212,152 @@ Manager.prototype = {
     }
 };
 
-
-var videoNum = 9;
-var playerContainer = new PlayerContainer(videoNum, {
-    width: '100%',
-    height: '100%',
-    autoPlay: true,
-    chromeless: true,
-    playbackNotSupportedMessage : '에러 발생',
-    disableKeyboardShortcuts: true,
-    plugins: {'playback': [RTMP]},
-    rtmpConfig: {
-        swfPath: 'assets/RTMP.swf',
-        scaling:'stretch',
-        playbackType: 'live',
-        bufferTime: 1,
-        startLevel: 0,
-    }
-});
-/**
- * 서버정보 Jstree
- */
-var vhostTree = $('#vhost-tree').jstree({
-    'core': {
-        'data': {
-            'url': '/vms/vhost-tree-nodes',
-            'dataType': 'json'
-        },
-        'check_callback' : true,
-        "multiple" : false
-    },
-    'types': {
-        'VHost' : {
-            'icon': 'css/jstree/vhost.png'
-        },
-        'Live': {
-
-        },
-        'LiveStream' : {
-            'icon': 'css/jstree/live-stream.png'
+function init() {
+    var videoNum = 9;
+    var playerContainer = new PlayerContainer(videoNum, {
+        width: '100%',
+        height: '100%',
+        autoPlay: true,
+        chromeless: true,
+        playbackNotSupportedMessage : '에러 발생',
+        disableKeyboardShortcuts: true,
+        plugins: {'playback': [RTMP]},
+        rtmpConfig: {
+            swfPath: 'assets/RTMP.swf',
+            scaling:'stretch',
+            playbackType: 'live',
+            bufferTime: 1,
+            startLevel: 0,
         }
-    },
-    'plugins': ['types']
-});
-var vhostJsTree = vhostTree.jstree();
-/**
- * 영상접속정보 Jstree
- */
-var connectionTree = $('#connection-tree').jstree( {
-    'core': {
-        'check_callback' : true,
-        "multiple" : false
-    },
-    'types': {
-        'LiveStream' : {
-            'icon': 'css/jstree/live-stream.png'
-        }
-    },
-    'plugins': ['types']
-});
-var connectionJsTree = connectionTree.jstree();
+    });
+    /**
+     * 서버정보 Jstree
+     */
+    var vhostTree = $('#vhost-tree').jstree({
+        'core': {
+            'data': {
+                'url': '/vms/vhost-tree-nodes',
+                'dataType': 'json'
+            },
+            'check_callback' : true,
+            "multiple" : false
+        },
+        'types': {
+            'VHost' : {
+                'icon': 'css/jstree/vhost.png'
+            },
+            'Live': {
 
-var navBarMenu = new NavBarMenu('#vms-navbar', 'Monitoring', vhostTree, connectionTree);
-var manager = new Manager('manager-header', '#manager-sidebar', '#manager-streamfiles', '#manager-transcoder');
+            },
+            'LiveStream' : {
+                'icon': 'css/jstree/live-stream.png'
+            }
+        },
+        'plugins': ['types']
+    });
+    var vhostJsTree = vhostTree.jstree();
 
-/**
- * 웹소켓 통신
- */
-var socket = io('/websocket');
-socket.on('incomingStream', function(streamData) {
-    var appNodeId = streamData.vhostName + '>' + streamData.appName;
-    var streamNodeId = appNodeId + '>' + streamData.streamName;
-    if( streamData.isPublish ) {
-        var vhostNode = vhostJsTree.get_node(streamData.vhostName);
-        var appNode = vhostJsTree.get_node(appNodeId);
-        var streamNodeData = getStreamAddr(vhostNode.data.vhostIp, vhostNode.data.vhostStreamingPort,
-            streamData.appName, streamData.appInstanceName, streamData.streamName);
-        console.log(appNode);
-        var nodeJson = {
-            id : streamNodeId,
-            text : streamData.streamName,
-            type : appNode.type + 'Stream',
-            data : streamNodeData
-        };
-        vhostJsTree.create_node(appNode, nodeJson, 'last');
-    } else {
-        vhostJsTree.deselect_node(streamNodeId, true);
-        vhostJsTree.delete_node(streamNodeId);
-    }
-});
+    /**
+     * 영상접속정보 Jstree
+     */
+    var connectionTree = $('#connection-tree').jstree( {
+        'core': {
+            'check_callback' : true,
+            "multiple" : false
+        },
+        'types': {
+            'LiveStream' : {
+                'icon': 'css/jstree/live-stream.png'
+            }
+        },
+        'plugins': ['types']
+    });
+    var connectionJsTree = connectionTree.jstree();
 
-/**
- *  영상 드래그앤드롭 기능
- */
-$('.vms-video')
-    .draggable({
-        revert: 'invalid',
-        helper: 'original',
-        snap: true
-    })
-    .droppable({
-        drop: function(event, ui) {
-            var src = $(ui.draggable);
-            var target = $(this);
+    var navBarMenu = new NavBarMenu('#vms-navbar', 'Monitoring', vhostTree, connectionTree);
+    var manager = new Manager('manager-header', '#manager-sidebar', '#manager-streamfiles', '#manager-transcoder');
 
-            var srcIndex = parseInt( src.attr('id').charAt(5) );
-            var targetIndex = parseInt( target.attr('id').charAt(5) );
-            var srcVideo = src.children().first();
-            var targetVideo = target.children().first();
-            src.css({
-                top: 0,
-                left: 0
-            }).append(targetVideo);
-            target.css({
-                top: 0,
-                left: 0
-            }).append(srcVideo);
-
-            // player index 위치 변경
-            playerContainer.swapPlayer(srcIndex, targetIndex);
-
-            // connectionTree 노드 위치 변경
-            var connectionTreeRootNode = connectionJsTree.get_node("#");
-            var srcConnectionNode = connectionJsTree.get_node(srcIndex);
-            var targetConnectionNode = connectionJsTree.get_node(targetIndex);
-            if( srcConnectionNode && targetConnectionNode ) // ID 중복 방지
-                connectionJsTree.set_id(targetConnectionNode, '-10');
-            if( srcConnectionNode )
-                swapJstreeNode(connectionJsTree, connectionTreeRootNode, srcConnectionNode, targetIndex);
-            if( targetConnectionNode )
-                swapJstreeNode(connectionJsTree, connectionTreeRootNode, targetConnectionNode, srcIndex);
+    /**
+     * 웹소켓 통신
+     */
+    var socket = io('/websocket');
+    socket.on('incomingStream', function(streamData) {
+        var appNodeId = streamData.vhostName + '>' + streamData.appName;
+        var streamNodeId = appNodeId + '>' + streamData.streamName;
+        if( streamData.isPublish ) {
+            var vhostNode = vhostJsTree.get_node(streamData.vhostName);
+            var appNode = vhostJsTree.get_node(appNodeId);
+            var streamNodeData = getStreamAddr(vhostNode.data.vhostIp, vhostNode.data.vhostStreamingPort,
+                streamData.appName, streamData.appInstanceName, streamData.streamName);
+            console.log(appNode);
+            var nodeJson = {
+                id : streamNodeId,
+                text : streamData.streamName,
+                type : appNode.type + 'Stream',
+                data : streamNodeData
+            };
+            vhostJsTree.create_node(appNode, nodeJson, 'last');
+        } else {
+            vhostJsTree.deselect_node(streamNodeId, true);
+            vhostJsTree.delete_node(streamNodeId);
         }
     });
 
+    /**
+     *  영상 드래그앤드롭 기능
+     */
+    $('.vms-video')
+        .draggable({
+            revert: 'invalid',
+            helper: 'original',
+            snap: true
+        })
+        .droppable({
+            drop: function(event, ui) {
+                var src = $(ui.draggable);
+                var target = $(this);
+
+                var srcIndex = parseInt( src.attr('id').charAt(5) );
+                var targetIndex = parseInt( target.attr('id').charAt(5) );
+                var srcVideo = src.children().first();
+                var targetVideo = target.children().first();
+                src.css({
+                    top: 0,
+                    left: 0
+                }).append(targetVideo);
+                target.css({
+                    top: 0,
+                    left: 0
+                }).append(srcVideo);
+
+                // player index 위치 변경
+                playerContainer.swapPlayer(srcIndex, targetIndex);
+
+                // connectionTree 노드 위치 변경
+                var connectionTreeRootNode = connectionJsTree.get_node("#");
+                var srcConnectionNode = connectionJsTree.get_node(srcIndex);
+                var targetConnectionNode = connectionJsTree.get_node(targetIndex);
+                if( srcConnectionNode && targetConnectionNode ) // ID 중복 방지
+                    connectionJsTree.set_id(targetConnectionNode, '-10');
+                if( srcConnectionNode )
+                    swapJstreeNode(connectionJsTree, connectionTreeRootNode, srcConnectionNode, targetIndex);
+                if( targetConnectionNode )
+                    swapJstreeNode(connectionJsTree, connectionTreeRootNode, targetConnectionNode, srcIndex);
+            }
+        });
+
+    /**
+     * 리스트 그룹 아이템 onclick 시에 active 변경
+     */
+    $('.list-group-item').on('click', function (e) {
+        $(this).siblings().removeClass("active");
+        $(this).addClass("active");
+    });
+}
+
+var vmsAppDom = $('vms-app');
+if( vmsAppDom.length ) { vmsAppDom.on('ngAfterViewInit', init) }
+else { $(document).ready(init) }
 
 
 /**
@@ -385,13 +397,7 @@ $('#manager-sidebar').find('a').each( function (index) {
 });
 */
 
-/**
- * 리스트 그룹 아이템 onclick 시에 active 변경
- */
-$('.list-group-item').on('click', function (e) {
-    $(this).siblings().removeClass("active");
-    $(this).addClass("active");
-});
+
 
 
 

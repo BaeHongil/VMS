@@ -1,0 +1,5 @@
+<div *ngFor="let row of sqrtPlayerNum | numToArr" class="row row-md-4">
+    <div *ngFor="let col of sqrtPlayerNum | numToArr" class="col-md-4">
+        <div *ngIf="sqrtPlayerNum*row + col < playerNum" class="vms-video"></div>
+    </div>
+</div>

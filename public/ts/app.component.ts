@@ -14,6 +14,7 @@ import './rxjs-extensions';
             <a [routerLink]="['/dashboard']" routerLinkActive="active">Dashboard</a>
             <a [routerLink]="['/heroes']" routerLinkActive="active">Heroes</a>
         </nav>
+        <div *ngIf="9 > 10">ok</div>
         <router-outlet></router-outlet>
     `,
     styleUrls: ['ts/app.component.css'],
@@ -24,4 +25,5 @@ import './rxjs-extensions';
 })
 export class AppComponent {
     title = 'Tour of Heroes';
+    num = [0,1,2,3,4,5,6,7,8,9,10];
 }
