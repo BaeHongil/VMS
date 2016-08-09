@@ -15,6 +15,7 @@
 <div class="container-fluid main-container">
     <div class="row row-md-1">
 
+        <!--좌측 사이드바-->
         <div class="col-md-3 sidebar">
             <ul class="nav nav-tabs nav-justified">
                 <li class="active"><a href="#tab1" data-toggle="tab">서버정보</a></li>
@@ -24,7 +25,7 @@
 
             <div class="tab-content">
                 <div class="tab-pane fade in active" id="tab1">
-                    <div id="vhost-tree"></div>
+                    <vhost-jstree [jsTreeOpt]="vhostJsTreeOpt"></vhost-jstree>
                 </div>
                 <div class="tab-pane fade" id="tab2">
                     <div id="connection-tree"></div>
@@ -33,9 +34,12 @@
             </div>
         </div>
 
+        <!--메인 패널-->
         <div class="tab-content">
-            <players [num]="9" class="col-md-9 tab-pane fade maincontent" id="streaming"></players>
+            <!--Streaming 패널-->
+            <players [num]="9" [idPrefix]="playerIdPrefix" [playerOpt]="playerOpt" class="col-md-9 tab-pane fade in active maincontent" id="streaming"></players>
 
+            <!--DVR 패널-->
             <div class="col-md-9 tab-pane fade" id="ndvr">
                 <div class="row">
                     <div class="col-md-9">
@@ -44,7 +48,8 @@
                 </div>
             </div>
 
-            <manager-pane class="col-md-9 tab-pane fade in active" id="manager"></manager-pane>
+            <!--Manager 패널-->
+            <manager-pane class="col-md-9 tab-pane fade" id="manager"></manager-pane>
         </div>
 
     </div>
