@@ -9,30 +9,23 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 /**
- * Created by manager on 2016-08-08.
+ * Created by manager on 2016-08-11.
  */
 var core_1 = require('@angular/core');
-var JsTree = (function () {
-    function JsTree(elementRef, jstreeService) {
-        this.jstreeService = jstreeService;
-        this.el = elementRef.nativeElement;
+var TabPanel = (function () {
+    function TabPanel() {
     }
-    JsTree.prototype.ngOnInit = function () {
-        jQuery(this.el).jstree(this.jsTreeOpt);
-        this.jsTree = jQuery(this.el).jstree();
-        this.setChangedJsTreeListener();
-    };
-    JsTree.prototype.setChangedJsTreeListener = function () {
-        var _this = this;
-        jQuery(this.el).on('changed.jstree', function (e, data) {
-            var selNode = data.instance.get_node(data.selected[0]);
-            _this.selectNode(selNode);
-        });
-    };
     __decorate([
         core_1.Input(), 
-        __metadata('design:type', Object)
-    ], JsTree.prototype, "jsTreeOpt", void 0);
-    return JsTree;
+        __metadata('design:type', String)
+    ], TabPanel.prototype, "tabName", void 0);
+    TabPanel = __decorate([
+        core_1.Component({
+            selector: 'tab-panel',
+            template: "\n        <div [ngClass]=\"panelClassesObj\">\n            <ng-content></ng-content>\n        </div>\n    "
+        }), 
+        __metadata('design:paramtypes', [])
+    ], TabPanel);
+    return TabPanel;
 }());
-exports.JsTree = JsTree;
+exports.TabPanel = TabPanel;

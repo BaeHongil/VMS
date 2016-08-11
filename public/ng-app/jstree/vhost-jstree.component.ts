@@ -1,7 +1,7 @@
 /**
  * Created by manager on 2016-08-09.
  */
-import { Component, ElementRef, Renderer,  } from '@angular/core';
+import { Component, ElementRef  } from '@angular/core';
 import { JsTree } from './jstree.component';
 import { JstreeService } from './jstree.service';
 
@@ -12,12 +12,12 @@ import { JstreeService } from './jstree.service';
 export class VHostJsTree extends JsTree {
     constructor(
         elementRef: ElementRef,
-        renderer: Renderer,
         jstreeService: JstreeService) {
-        super(elementRef, renderer, jstreeService);
+        super(elementRef, jstreeService);
     }
 
     selectNode(selNode:any) {
         this.jstreeService.selectVhostNode(selNode);
     }
+
 }

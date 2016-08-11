@@ -3,19 +3,22 @@
  */
 /// <reference path="../js/clappr-rtmp.d.ts" />
 import { Component, AfterViewInit, ElementRef } from '@angular/core';
+import { NavTabs } from './nav-tab/nav-tabs.component';
+import { VHostJsTree } from './jstree/vhost-jstree.component';
+import { ConnJsTree } from './jstree/conn-jstree.component';
 import { Players } from './player/players.component';
 import { Manager } from './manager/manager.component';
-import { VHostJsTree } from './jstree/vhost-jstree.component';
 import { JstreeService } from './jstree/jstree.service';
-import { JsTree } from './jstree/jstree.component';
 
 @Component({
+    moduleId: module.id,
     selector: 'vms-app',
-    templateUrl: 'ng-app/app.component.html',
-    directives: [VHostJsTree, Players, Manager],
+    templateUrl: 'app.component.html',
+    directives: [NavTabs, VHostJsTree, ConnJsTree, Players, Manager],
     providers: [JstreeService]
 })
 export class AppComponent implements AfterViewInit {
+    tabNames = ['Monitoring', 'DVR', 'Manager'];
     playerIdPrefix = 'video';
     playerOpt = {
         width: '100%',
@@ -49,6 +52,18 @@ export class AppComponent implements AfterViewInit {
             'Live': {
 
             },
+            'LiveStream' : {
+                'icon': 'css/jstree/live-stream.png'
+            }
+        },
+        'plugins': ['types']
+    };
+    connJsTreeOpt = {
+        'core': {
+            'check_callback' : true,
+            "multiple" : false
+        },
+        'types': {
             'LiveStream' : {
                 'icon': 'css/jstree/live-stream.png'
             }

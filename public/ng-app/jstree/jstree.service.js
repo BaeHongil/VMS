@@ -18,9 +18,13 @@ var JstreeService = (function () {
         this.menuSelectedSubject = new Subject_1.Subject();
         this.vhostNodeSelectedSubject = new Subject_1.Subject();
         this.connNodeSelectedSubject = new Subject_1.Subject();
+        this.streamingPlayedSubject = new Subject_1.Subject();
+        this.playerSwapedSubject = new Subject_1.Subject();
         this.menuSelected$ = this.menuSelectedSubject.asObservable();
         this.vhostNodeSelected$ = this.vhostNodeSelectedSubject.asObservable();
         this.connNodeSelected$ = this.connNodeSelectedSubject.asObservable();
+        this.streamingPlayed$ = this.streamingPlayedSubject.asObservable();
+        this.playerSwaped$ = this.playerSwapedSubject.asObservable();
     }
     JstreeService.prototype.selectMenu = function (menu) {
         this.menuSelectedSubject.next(menu);
@@ -30,6 +34,12 @@ var JstreeService = (function () {
     };
     JstreeService.prototype.selectConnNode = function (node) {
         this.connNodeSelectedSubject.next(node);
+    };
+    JstreeService.prototype.playStreaming = function (playData) {
+        this.streamingPlayedSubject.next(playData);
+    };
+    JstreeService.prototype.swapPlayer = function (indexs) {
+        this.playerSwapedSubject.next(indexs);
     };
     JstreeService = __decorate([
         core_1.Injectable(), 

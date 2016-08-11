@@ -4,12 +4,8 @@
             <a href="#" class="navbar-brand">Video Management System</a>
         </div>
         <div class="collapse navbar-collapse" id="vms-navbar">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#streaming" data-toggle="tab" data-item="Monitoring" data-type="text">Monitoring<span class="sr-only">(current)</span></a></li>
-                <li><a href="#ndvr" data-toggle="tab" data-item="DVR" data-type="text">DVR</a></li>
-                <li><a href="#manager" data-toggle="tab" data-item="Manager" data-type="text">Manager</a></li>
-            </ul>
-        </div><!-- /.navbar-collapse -->
+            <nav-tabs [tabNames]="tabNames"></nav-tabs>
+        </div>
     </div>
 </nav>
 <div class="container-fluid main-container">
@@ -28,7 +24,7 @@
                     <vhost-jstree [jsTreeOpt]="vhostJsTreeOpt"></vhost-jstree>
                 </div>
                 <div class="tab-pane fade" id="tab2">
-                    <div id="connection-tree"></div>
+                    <conn-jstree [jsTreeOpt]="connJsTreeOpt"></conn-jstree>
                 </div>
                 <div class="tab-pane fade" id="tab3">tab3 pane</div>
             </div>
@@ -37,10 +33,10 @@
         <!--메인 패널-->
         <div class="tab-content">
             <!--Streaming 패널-->
-            <players [num]="9" [idPrefix]="playerIdPrefix" [playerOpt]="playerOpt" class="col-md-9 tab-pane fade in active maincontent" id="streaming"></players>
+            <players [num]="9" [idPrefix]="playerIdPrefix" [playerOpt]="playerOpt" class="col-md-9 tab-pane fade in active maincontent" id="monitoring"></players>
 
             <!--DVR 패널-->
-            <div class="col-md-9 tab-pane fade" id="ndvr">
+            <div class="col-md-9 tab-pane fade" id="dvr">
                 <div class="row">
                     <div class="col-md-9">
                         <div id="video10" class="vms-video"></div>

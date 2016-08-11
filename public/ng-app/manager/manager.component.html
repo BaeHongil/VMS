@@ -4,20 +4,35 @@
 <div class="row">
     <div id="live-manager">
         <div class="col-md-9">
-            <manager-streamfiles id="manager-streamfiles" class="tab-pane fade in active"></manager-streamfiles>
-            <div id="manager-transcoder" class="tab-pane fade">
-
-            </div>
+            <tab-panels [tabNames]="tabNames" [panelClasses]="'fade'" [activePanelClasses]="'in active'">
+                <tab-panel [tabName]="tabNames[0]">
+                    <manager-streamfiles></manager-streamfiles>
+                </tab-panel>
+                <tab-panel [tabName]="tabNames[1]">
+                    <div>탭패널2</div>
+                </tab-panel>
+                <tab-panel [tabName]="tabNames[2]">
+                    <div>탭패널3</div>
+                </tab-panel>
+            </tab-panels>
         </div>
-        <div id="manager-sidebar" class="col-md-3 list-group">
-            <a class="list-group-item active" href="#manager-streamfiles" data-toggle="tab" data-item="streamfiles" data-type="text">스트림 파일</a>
-            <a class="list-group-item" href="#manager-transcoder" data-toggle="tab" data-item="transcoder" data-type="text">트랜스코딩</a>
-            <a class="list-group-item" href="#" data-toggle="tab">Link1</a>
-            <a class="list-group-item" href="#" data-toggle="tab">Link1</a>
-            <a class="list-group-item" href="#" data-toggle="tab">Link1</a>
-            <a class="list-group-item" href="#" data-toggle="tab">Link1</a>
-            <a class="list-group-item" href="#" data-toggle="tab">Link1</a>
+        <div class="col-md-3">
+            <tabs [tabsClasses]="'list-group'"
+                  [tabClasses]="'list-group-item'"
+                  [activeClass]="'active'"
+                  [tabNames]="tabNames"
+                  (selectTabEvent)="selectTabEvent($event)"
+                  ></tabs>
         </div>
+        <!--<ul id="manager-sidebar" class="col-md-3 list-group">
+            <li class="list-group-item" href="#manager-streamfiles" data-toggle="tab" data-item="streamfiles" data-type="text"><a class="active" href="#manager-streamfiles">스트림 파일</a></li>
+            <li class="list-group-item" href="#manager-transcoder" data-toggle="tab" data-item="transcoder" data-type="text">트랜스코딩</li>
+            <li class="list-group-item" href="#" data-toggle="tab">Link1</li>
+            <li class="list-group-item" href="#" data-toggle="tab">Link1</li>
+            <li class="list-group-item" href="#" data-toggle="tab">Link1</li>
+            <li class="list-group-item" href="#" data-toggle="tab">Link1</li>
+            <li class="list-group-item" href="#" data-toggle="tab" (click)="onClick()">Link1</li>
+        </ul>-->
     </div>
 
 </div>

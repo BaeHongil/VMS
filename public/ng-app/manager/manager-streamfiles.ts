@@ -4,8 +4,9 @@
 import { Component } from '@angular/core';
 
 @Component({
+    moduleId: module.id,
     selector: 'manager-streamfiles',
-    templateUrl: 'ng-app/manager/manager-streamfiles.html'
+    templateUrl: 'manager-streamfiles.html'
 })
 export class ManagerStreamFiles {
 

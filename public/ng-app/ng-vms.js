@@ -46,6 +46,7 @@ PlayerContainer.prototype = {
 
         return playerIndex;
     },
+
     swapPlayer : function (srcIndex, targetIndex) {
         var src = this.players[srcIndex];
         this.players[srcIndex] = this.players[targetIndex];

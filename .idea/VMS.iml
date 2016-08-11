@@ -15,5 +15,7 @@
     <orderEntry type="library" name="express-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="videojs-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="jquery-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="rx-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="jqueryui-DefinitelyTyped" level="application" />
   </component>
 </module>

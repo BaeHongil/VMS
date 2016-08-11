@@ -71,13 +71,14 @@ PlayerContainer.prototype = {
     }
 };
 
-function NavBarMenu(navBarId, activeMenu, vhostTree, connectionTree) {
+function NavBarMenu(navBarId, activeMenu, vhostTree, connectionTree, playerContainer) {
     this.navBar = $(navBarId);
     this._activeMenu = activeMenu;
     this.vhostTree = vhostTree;
     this.connectionTree = connectionTree;
     this.vhostJsTree = vhostTree.jstree();
     this.connectionJsTree = vhostTree.jstree();
+    this.playerContainer = playerContainer;
 
     /**
      * 상단 네비게이션 바 메뉴 onclick
@@ -105,35 +106,36 @@ NavBarMenu.prototype = {
         }
     },
     _setActiveMonitoring : function () {
-        vhostTree.on('changed.jstree', function(e, data) {
+        var navBarMenu = this;
+        this.vhostTree.on('changed.jstree', function(e, data) {
             var selNode = data.instance.get_node(data.selected[0]);
             var rtmpSrc = selNode.data.rtmp;
 
             if( selNode.type === 'LiveStream' ) {
-                var index = playerContainer.playRtmpInRemain(rtmpSrc);
+                var index = navBarMenu.playerContainer.playRtmpInRemain(rtmpSrc);
                 var parentNodeJson = {
                     id : index.toString(),
                     text : (index+1) + '번 영상',
                     state : {opened : true}
                 };
-                var parentNodeId = connectionJsTree.create_node(null, parentNodeJson, index);
-                var parentNode = connectionJsTree.get_node(parentNodeId);
+                var parentNodeId = navBarMenu.connectionJsTree.create_node(null, parentNodeJson, index);
+                var parentNode = navBarMenu.connectionJsTree.get_node(parentNodeId);
                 var liveNodeJson = {
                     text : selNode.text,
                     type : selNode.type
                 };
-                connectionJsTree.create_node(parentNode, liveNodeJson, 'last');
+                navBarMenu.connectionJsTree.create_node(parentNode, liveNodeJson, 'last');
             }
         });
     },
     _setActiveDvr : function () {
-        vhostTree.on('changed.jstree', function(e, data) {
+        this.vhostTree.on('changed.jstree', function(e, data) {
 
         });
     },
     _setActiveManager : function () {
         var selNode = vhostJsTree.get_selected(true);
-        vhostTree.on('changed.jstree', function(e, data) {
+        this.vhostTree.on('changed.jstree', function(e, data) {
             var selNode = data.instance.get_node(data.selected[0]);
 
             switch(selNode.type) {
@@ -274,7 +276,7 @@ function init() {
     });
     var connectionJsTree = connectionTree.jstree();
 
-    var navBarMenu = new NavBarMenu('#vms-navbar', 'Monitoring', vhostTree, connectionTree);
+    var navBarMenu = new NavBarMenu('#vms-navbar', 'Monitoring', vhostTree, connectionTree, playerContainer);
     var manager = new Manager('manager-header', '#manager-sidebar', '#manager-streamfiles', '#manager-transcoder');
 
     /**

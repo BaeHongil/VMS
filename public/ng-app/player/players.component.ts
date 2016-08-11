@@ -2,18 +2,23 @@
 /**
  * Created by manager on 2016-08-08.
  */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
 import { NumToArr } from '../num-to-arr.pipe';
 import { Subscription } from "rxjs/Rx";
-import { JstreeService } from '../jstree/jstree.service'
+import { JstreeService } from '../jstree/jstree.service';
+import { Dragula, DragulaService } from 'ng2-dragula/ng2-dragula';
+import { DND_DIRECTIVES } from 'ng2-dnd/ng2-dnd';
 
 
 @Component({
+    moduleId: module.id,
     selector: 'players',
-    templateUrl: 'ng-app/player/players.component.html',
-    pipes: [NumToArr]
+    templateUrl: 'players.component.html',
+    pipes: [NumToArr],
+    directives: [DND_DIRECTIVES, Dragula],
+    viewProviders: [DragulaService]
 })
-export class Players implements OnInit {
+export class Players implements OnInit, AfterViewInit {
     @Input() idPrefix: string;
     @Input() playerOpt: Object;
     players: Array<Player>;
@@ -22,7 +27,8 @@ export class Players implements OnInit {
     private sqrtPlayerNum: number;
     vhostTreeSubs: Subscription;
 
-    constructor(private jstreeService: JstreeService) { }
+    constructor(private jstreeService: JstreeService,
+                private dragulaService: DragulaService) { }
 
     @Input('num')
     set playerNumStr(playerNumStr: string) {
@@ -38,27 +44,60 @@ export class Players implements OnInit {
             this.players[i] = new Clappr.Player(this.playerOpt);
             this.playings[i] = false;
         }
-        console.log(this.players);
+
+        // vhostTree 노드 선택 구독
         this.vhostTreeSubs = this.jstreeService.vhostNodeSelected$.subscribe(
             vhostNode => {
                 if( vhostNode.type === 'LiveStream' ) {
-                    var rtmpSrc = vhostNode.data.rtmp;
-                    var index = this.playRtmpInRemain(rtmpSrc);
-                    /*var parentNodeJson = {
-                        id : index.toString(),
-                        text : (index+1) + '번 영상',
-                        state : {opened : true}
-                    };
-                    var parentNodeId = connectionJsTree.create_node(null, parentNodeJson, index);
-                    var parentNode = connectionJsTree.get_node(parentNodeId);
-                    var liveNodeJson = {
+                    let rtmpSrc = vhostNode.data.rtmp;
+                    let index = this.playRtmpInRemain(rtmpSrc);
+                    let liveNodeJson = {
                         text : vhostNode.text,
                         type : vhostNode.type
                     };
-                    connectionJsTree.create_node(parentNode, liveNodeJson, 'last');*/
+                    let playData = {
+                        index: index,
+                        liveNodeJson: liveNodeJson
+                    };
+                    this.jstreeService.playStreaming(playData);
                 }
             }
-        )
+        );
+
+    }
+
+    ngAfterViewInit() {
+        let self = this;
+        jQuery('.vms-video')
+            .draggable({
+                revert: 'invalid',
+                helper: 'original',
+                snap: true
+            })
+            .droppable({
+                drop: function(event, ui) {
+                    let src = $(ui.draggable);
+                    let target = $(this);
+
+                    let srcIndex = parseInt( src.attr('id').charAt(5) );
+                    let targetIndex = parseInt( target.attr('id').charAt(5) );
+                    let srcVideo = src.children().first();
+                    let targetVideo = target.children().first();
+                    let cssData = {
+                        top: 0,
+                        left: 0
+                    };
+                    src.css(cssData).append(targetVideo);
+                    target.css(cssData).append(srcVideo);
+
+                    // player index 위치 변경
+                    self.swapPlayer(srcIndex, targetIndex);
+                    self.jstreeService.swapPlayer({
+                        srcIndex: srcIndex,
+                        targetIndex: targetIndex
+                    });
+                }
+            });
     }
 
     private getPlayerId(playerIndex: number): string {
@@ -103,4 +142,5 @@ export class Players implements OnInit {
             }
         }
     }
+
 }
