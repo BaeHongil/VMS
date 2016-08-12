@@ -17,16 +17,18 @@ var TabPanels = (function () {
     function TabPanels() {
     }
     TabPanels.prototype.ngOnInit = function () {
-        this.activeTabName = this.tabNames[0];
         this.activePanelClassesArr = this.activePanelClasses.split(' ');
     };
     TabPanels.prototype.ngAfterContentInit = function () {
-        var self = this;
+        var _this = this;
         var panelClassesObj = this.stringToObject(this.panelClasses, this.activePanelClassesArr);
-        this.tabPanels.toArray().forEach(function (tabPanel) {
-            tabPanel.panelClassesObj = Object.assign({}, panelClassesObj);
-            self.setPanelClass(tabPanel.tabName, tabPanel.panelClassesObj);
+        var self = this;
+        this.tabPanels.toArray().forEach(function (tabPanel, index) {
+            tabPanel.setPanelClassesObj(Object.assign({}, panelClassesObj));
+            if (!tabPanel.tabName)
+                tabPanel.tabName = _this.tabNames[index];
         });
+        this.setActivePanel(this.tabNames[0]);
     };
     TabPanels.prototype.stringToObject = function (classes, activeClassesArr) {
         var obj = {};
@@ -38,10 +40,14 @@ var TabPanels = (function () {
         });
         return obj;
     };
-    TabPanels.prototype.setPanelClass = function (tabName, prePanelClassObj) {
-        var active = (tabName === this.activeTabName);
-        this.activePanelClassesArr.forEach(function (val) {
-            prePanelClassObj[val] = active;
+    TabPanels.prototype.setActivePanel = function (activeTabName) {
+        var _this = this;
+        this.activeTabName = activeTabName;
+        this.tabPanels.toArray().forEach(function (tabPanel, index) {
+            var active = (tabPanel.tabName === _this.activeTabName);
+            _this.activePanelClassesArr.forEach(function (className) {
+                tabPanel.setPanelClass(className, active);
+            });
         });
     };
     __decorate([

@@ -1,13 +1,14 @@
 <table class="table table-striped">
     <thead>
-    <tr>
-        <th>스트림 파일명</th>
-        <th>Action</th>
-    </tr>
+        <tr>
+            <th>스트림 파일명</th>
+            <th>Action</th>
+        </tr>
     </thead>
     <tbody>
-        <tr>
-
+        <tr *ngFor="let streamFile of streamFiles | async">
+            <td>{{streamFile}}</td>
+            <td>액션</td>
         </tr>
     </tbody>
 </table>

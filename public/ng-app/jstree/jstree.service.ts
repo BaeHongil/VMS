@@ -18,11 +18,14 @@ export class JstreeService {
     streamingPlayed$ = this.streamingPlayedSubject.asObservable();
     playerSwaped$ = this.playerSwapedSubject.asObservable();
 
+    currentVhostNode: any;
+
     selectMenu(menu: string) {
         this.menuSelectedSubject.next(menu);
     }
 
     selectVhostNode(node: any) {
+        this.currentVhostNode = node;
         this.vhostNodeSelectedSubject.next(node);
     }
 
@@ -37,4 +40,5 @@ export class JstreeService {
     swapPlayer(indexs: any) {
         this.playerSwapedSubject.next(indexs);
     }
+
 }

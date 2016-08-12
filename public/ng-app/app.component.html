@@ -1,7 +1,7 @@
 <nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a href="#" class="navbar-brand">Video Management System</a>
+            <a href="" class="navbar-brand">Video Management System</a>
         </div>
         <div class="collapse navbar-collapse" id="vms-navbar">
             <nav-tabs [tabNames]="tabNames"></nav-tabs>
@@ -33,7 +33,7 @@
         <!--메인 패널-->
         <div class="tab-content">
             <!--Streaming 패널-->
-            <players [num]="9" [idPrefix]="playerIdPrefix" [playerOpt]="playerOpt" class="col-md-9 tab-pane fade in active maincontent" id="monitoring"></players>
+            <players [name]="tabNames[0]" [num]="9" [idPrefix]="playerIdPrefix" [playerOpt]="playerOpt" class="col-md-9 tab-pane fade in active maincontent" id="monitoring"></players>
 
             <!--DVR 패널-->
             <div class="col-md-9 tab-pane fade" id="dvr">
@@ -45,7 +45,7 @@
             </div>
 
             <!--Manager 패널-->
-            <manager-pane class="col-md-9 tab-pane fade" id="manager"></manager-pane>
+            <manager-pane [name]="tabNames[2]" class="col-md-9 tab-pane fade" id="manager"></manager-pane>
         </div>
 
     </div>

@@ -8,17 +8,17 @@ import { HeroDetailComponent } from './hero-detail.component';
 
 const routes: RouterConfig = [
     {
+        path: '',
+        redirectTo: '/dashboard',
+        pathMatch: 'full'
+    },
+    {
         path: 'heroes',
         component: HeroesComponent
     },
     {
         path: 'dashboard',
         component: DashboardComponent
-    },
-    {
-        path: '',
-        redirectTo: '/dashboard',
-        pathMatch: 'full'
     },
     {
         path: 'detail/:id',

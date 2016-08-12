@@ -14,7 +14,6 @@ import './rxjs-extensions';
             <a [routerLink]="['/dashboard']" routerLinkActive="active">Dashboard</a>
             <a [routerLink]="['/heroes']" routerLinkActive="active">Heroes</a>
         </nav>
-        <div *ngIf="9 > 10">ok</div>
         <router-outlet></router-outlet>
     `,
     styleUrls: ['ts/app.component.css'],

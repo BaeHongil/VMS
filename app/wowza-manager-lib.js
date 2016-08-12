@@ -16,6 +16,7 @@ function getStreamFiles(baseUrl, vhostName, appName) {
     });
 }
 exports.getStreamFiles = getStreamFiles;
+/*
 
 getStreamFiles(wowzaLib.getBaseUrl('192.168.0.183', 8087), '_defaultVHost_', 'live')
-    .then(console.log);
+    .then(console.log);*/

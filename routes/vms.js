@@ -8,10 +8,7 @@ var wowzaRestApiPort = process.argv[4];
 var baseUrl = wowzaLib.getBaseUrl(wowzaIp, wowzaRestApiPort);
 
 router.get('/', (req, res, next) => {
-    var vhosts = [];
-    wowzaLib.addVHosts(baseUrl, vhosts).then( () => {
-        res.render('vms', { vhosts: wowzaLib.getJstreeData(vhosts) });
-    });
+    res.sendfile('public/ng-vms.html');
 });
 
 router.get('/vhost-tree-nodes', (req, res, next) => {

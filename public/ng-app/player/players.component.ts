@@ -6,19 +6,16 @@ import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
 import { NumToArr } from '../num-to-arr.pipe';
 import { Subscription } from "rxjs/Rx";
 import { JstreeService } from '../jstree/jstree.service';
-import { Dragula, DragulaService } from 'ng2-dragula/ng2-dragula';
-import { DND_DIRECTIVES } from 'ng2-dnd/ng2-dnd';
-
+import { NabTabService } from '../nav-tab/nav-tab.service';
 
 @Component({
     moduleId: module.id,
     selector: 'players',
     templateUrl: 'players.component.html',
-    pipes: [NumToArr],
-    directives: [DND_DIRECTIVES, Dragula],
-    viewProviders: [DragulaService]
+    pipes: [NumToArr]
 })
 export class Players implements OnInit, AfterViewInit {
+    @Input() name: string;
     @Input() idPrefix: string;
     @Input() playerOpt: Object;
     players: Array<Player>;
@@ -26,9 +23,10 @@ export class Players implements OnInit, AfterViewInit {
     playerNum: number;
     private sqrtPlayerNum: number;
     vhostTreeSubs: Subscription;
+    nabTabSelectedSubs: Subscription;
 
     constructor(private jstreeService: JstreeService,
-                private dragulaService: DragulaService) { }
+                private nabTabService: NabTabService) { }
 
     @Input('num')
     set playerNumStr(playerNumStr: string) {
@@ -45,7 +43,55 @@ export class Players implements OnInit, AfterViewInit {
             this.playings[i] = false;
         }
 
-        // vhostTree 노드 선택 구독
+        this.subscribeVhostTree();
+        this.nabTabSelectedSubs = this.nabTabService.nabTabSelected$.subscribe(
+            (navTabName: string) => {
+                if( navTabName !== name && !this.vhostTreeSubs.isUnsubscribed ) { // 플레이어 탭이 아닐 때
+                    this.vhostTreeSubs.unsubscribe();
+                    this.stopAllPlayers();
+                }
+                else {
+                    this.subscribeVhostTree();
+                    this.reloadAllPlayers();
+                }
+            }
+        )
+    }
+
+    ngAfterViewInit() {
+        jQuery('.vms-video')
+            .draggable({
+                revert: 'invalid',
+                helper: 'original',
+                snap: true
+            })
+            .droppable({
+                drop: (event, ui) => {
+                    let src = $(ui.draggable);
+                    let target = $(this);
+
+                    let srcIndex = parseInt( src.attr('id').charAt(5) );
+                    let targetIndex = parseInt( target.attr('id').charAt(5) );
+                    let srcVideo = src.children().first();
+                    let targetVideo = target.children().first();
+                    let cssData = {
+                        top: 0,
+                        left: 0
+                    };
+                    src.css(cssData).append(targetVideo);
+                    target.css(cssData).append(srcVideo);
+
+                    // player index 위치 변경
+                    this.swapPlayer(srcIndex, targetIndex);
+                    this.jstreeService.swapPlayer({
+                        srcIndex: srcIndex,
+                        targetIndex: targetIndex
+                    });
+                }
+            });
+    }
+
+    private subscribeVhostTree() {
         this.vhostTreeSubs = this.jstreeService.vhostNodeSelected$.subscribe(
             vhostNode => {
                 if( vhostNode.type === 'LiveStream' ) {
@@ -63,41 +109,6 @@ export class Players implements OnInit, AfterViewInit {
                 }
             }
         );
-
-    }
-
-    ngAfterViewInit() {
-        let self = this;
-        jQuery('.vms-video')
-            .draggable({
-                revert: 'invalid',
-                helper: 'original',
-                snap: true
-            })
-            .droppable({
-                drop: function(event, ui) {
-                    let src = $(ui.draggable);
-                    let target = $(this);
-
-                    let srcIndex = parseInt( src.attr('id').charAt(5) );
-                    let targetIndex = parseInt( target.attr('id').charAt(5) );
-                    let srcVideo = src.children().first();
-                    let targetVideo = target.children().first();
-                    let cssData = {
-                        top: 0,
-                        left: 0
-                    };
-                    src.css(cssData).append(targetVideo);
-                    target.css(cssData).append(srcVideo);
-
-                    // player index 위치 변경
-                    self.swapPlayer(srcIndex, targetIndex);
-                    self.jstreeService.swapPlayer({
-                        srcIndex: srcIndex,
-                        targetIndex: targetIndex
-                    });
-                }
-            });
     }
 
     private getPlayerId(playerIndex: number): string {
@@ -112,6 +123,20 @@ export class Players implements OnInit, AfterViewInit {
         player.setParentId(playerId);
         player.load(rtmpSrc);
         this.playings[playerIndex] = true;
+    }
+
+    private stopAllPlayers() {
+        this.players.forEach( (player, index) => {
+            if( this.playings[index] )
+                player.stop();
+        });
+    }
+
+    private reloadAllPlayers() {
+        this.players.forEach( (player, index) => {
+            if( this.playings[index] )
+                player.load( player.options.sources );
+        });
     }
 
     playRtmpInRemain(rtmpSrc: string): number {

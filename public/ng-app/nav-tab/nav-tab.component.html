@@ -1,5 +1,5 @@
 <ul class="nav navbar-nav">
     <li *ngFor="let tabName of tabNames; let i=index" [class.active]="i === 0">
-        <a href="#{{tabName | lowercase}}" data-toggle="tab" (click)="onTabClick(i)">{{tabName}}</a>
+        <a href="#{{tabName | lowercase}}" data-toggle="tab" (click)="onTabClick(i, tabName)">{{tabName}}</a>
     </li>
 </ul>

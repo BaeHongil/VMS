@@ -109,9 +109,11 @@ NavBarMenu.prototype = {
         var navBarMenu = this;
         this.vhostTree.on('changed.jstree', function(e, data) {
             var selNode = data.instance.get_node(data.selected[0]);
-            var rtmpSrc = selNode.data.rtmp;
+
+            console.log(selNode);
 
             if( selNode.type === 'LiveStream' ) {
+                var rtmpSrc = selNode.data.rtmp;
                 var index = navBarMenu.playerContainer.playRtmpInRemain(rtmpSrc);
                 var parentNodeJson = {
                     id : index.toString(),

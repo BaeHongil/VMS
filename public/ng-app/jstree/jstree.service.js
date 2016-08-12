@@ -30,6 +30,7 @@ var JstreeService = (function () {
         this.menuSelectedSubject.next(menu);
     };
     JstreeService.prototype.selectVhostNode = function (node) {
+        this.currentVhostNode = node;
         this.vhostNodeSelectedSubject.next(node);
     };
     JstreeService.prototype.selectConnNode = function (node) {

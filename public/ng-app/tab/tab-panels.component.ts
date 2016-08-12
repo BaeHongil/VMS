@@ -18,21 +18,23 @@ export class TabPanels implements OnInit, AfterContentInit {
     activePanelClassesArr: string[];
     @ContentChildren(TabPanel) tabPanels: QueryList<TabPanel>;
 
+
     ngOnInit() {
-        this.activeTabName = this.tabNames[0];
         this.activePanelClassesArr = this.activePanelClasses.split(' ');
     }
 
     ngAfterContentInit() {
-        let self = this;
         let panelClassesObj = this.stringToObject(this.panelClasses, this.activePanelClassesArr);
-        this.tabPanels.toArray().forEach( (tabPanel: TabPanel) => {
-            tabPanel.panelClassesObj = Object.assign({}, panelClassesObj);
-            self.setPanelClass( tabPanel.tabName, tabPanel.panelClassesObj);
+        let self = this;
+        this.tabPanels.toArray().forEach( (tabPanel: TabPanel, index: number) => {
+            tabPanel.setPanelClassesObj( Object.assign({}, panelClassesObj) );
+            if( !tabPanel.tabName )
+                tabPanel.tabName = this.tabNames[index];
         });
+        this.setActivePanel( this.tabNames[0] );
     }
 
-    stringToObject(classes: string, activeClassesArr: string[]): Object {
+    private stringToObject(classes: string, activeClassesArr: string[]): Object {
         let obj = {};
         classes.split(' ').forEach( (val: string) => {
             obj[val] = true;
@@ -44,10 +46,14 @@ export class TabPanels implements OnInit, AfterContentInit {
         return obj;
     }
 
-    setPanelClass(tabName: string, prePanelClassObj: Object) {
-        let active = (tabName === this.activeTabName);
-        this.activePanelClassesArr.forEach( (val: string) => {
-            prePanelClassObj[val] = active;
+    setActivePanel(activeTabName: string) {
+        this.activeTabName = activeTabName;
+
+        this.tabPanels.toArray().forEach( (tabPanel: TabPanel, index: number) => {
+            let active = (tabPanel.tabName === this.activeTabName);
+            this.activePanelClassesArr.forEach( (className: string) => {
+                tabPanel.setPanelClass(className, active);
+            });
         });
     }
 }

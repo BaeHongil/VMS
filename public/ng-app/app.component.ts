@@ -9,13 +9,14 @@ import { ConnJsTree } from './jstree/conn-jstree.component';
 import { Players } from './player/players.component';
 import { Manager } from './manager/manager.component';
 import { JstreeService } from './jstree/jstree.service';
+import { NabTabService } from "./nav-tab/nav-tab.service";
 
 @Component({
     moduleId: module.id,
     selector: 'vms-app',
     templateUrl: 'app.component.html',
     directives: [NavTabs, VHostJsTree, ConnJsTree, Players, Manager],
-    providers: [JstreeService]
+    providers: [JstreeService, NabTabService]
 })
 export class AppComponent implements AfterViewInit {
     tabNames = ['Monitoring', 'DVR', 'Manager'];

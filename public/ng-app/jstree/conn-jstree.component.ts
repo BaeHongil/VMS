@@ -1,12 +1,16 @@
 import { Component, ElementRef } from '@angular/core';
 import { JsTree } from './jstree.component';
 import { JstreeService } from './jstree.service';
+import { Subscription } from "rxjs/Rx";
 
 @Component({
     selector: 'conn-jstree',
     template: '<div></div>'
 })
 export class ConnJsTree extends JsTree {
+    streamingPlayedSubs: Subscription;
+    playerSwapedSubs: Subscription;
+
     constructor(
         elementRef: ElementRef,
         jstreeService: JstreeService) {
@@ -17,7 +21,7 @@ export class ConnJsTree extends JsTree {
         super.ngOnInit();
 
         // 플레이어에서 스트리밍을 재생할 때
-        this.jstreeService.streamingPlayed$.subscribe(
+        this.streamingPlayedSubs = this.jstreeService.streamingPlayed$.subscribe(
             playData => {
                 let parentNodeJson = {
                     id : playData.index.toString(),
@@ -28,7 +32,8 @@ export class ConnJsTree extends JsTree {
             }
         );
 
-        this.jstreeService.playerSwaped$.subscribe(
+        // 플레이어 위치 변경 시
+        this.playerSwapedSubs = this.jstreeService.playerSwaped$.subscribe(
             indexs => {
                 this.swapNode(indexs.srcIndex, indexs.targetIndex);
             }
@@ -71,6 +76,4 @@ export class ConnJsTree extends JsTree {
         }
         return rootNode.children.length;
     }
-
-
 }

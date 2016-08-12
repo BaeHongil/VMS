@@ -24,7 +24,6 @@ export class Tabs implements OnInit {
     tabClassesObj: Object;
     activeTabName: string;
 
-
     ngOnInit() {
         this.activeTabName = this.tabNames[0];
         this.tabClassesObj = this.stringToObject(this.tabClasses, this.activeClass);
