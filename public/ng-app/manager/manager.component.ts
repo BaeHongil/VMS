@@ -7,40 +7,111 @@ import { ManagerService } from './manager.service';
 import { TabPanel, TabPanels, Tabs } from '../tab/index';
 import { NabTabService } from "../nav-tab/nav-tab.service";
 import { managerRouterProvider } from './manager.routes';
+import { ROUTER_DIRECTIVES } from "@angular/router";
+import {JstreeService} from "../jstree/jstree.service";
+import {Subscription} from "rxjs/Rx";
 
 @Component({
     moduleId: module.id,
     selector: 'manager-pane',
     templateUrl: 'manager.component.html',
-    directives: [ManagerStreamFiles, Tabs, TabPanels, TabPanel],
+    directives: [ManagerStreamFiles, Tabs, TabPanels, TabPanel, ROUTER_DIRECTIVES],
     providers: [ManagerService, managerRouterProvider]
 })
 export class Manager implements OnInit {
     @Input() name: string;
-    visible: boolean;
-    tabNames = [
+    managerTypes = [
         {
-            name: '스트림 파일',
-            urlName: 'streamfiles'
+            typeName: 'VHost',
+            tabs: [
+                {
+                    name: '설정',
+                    urlName: 'manager/streamfiles'
+                },
+                {
+                    name: 'Source 인증',
+                    urlName: 'manager/transcoder'
+                }
+            ]
         },
         {
-            name: '트랜스코딩',
-            urlName: 'transcoder'
+            typeName: 'Application',
+            tabs: [
+                {
+                    name: '스트림 파일',
+                    urlName: 'manager/streamfiles'
+                },
+                {
+                    name: '트랜스코딩',
+                    urlName: 'manager/transcoder'
+                }
+            ]
         }
     ];
+    managerTypeName: string;
+    vhostNode: any;
+    nodeName: string;
+    visible: boolean;
+    vhostTreeSubs: Subscription;
+
 
     constructor(
         private nabTabService: NabTabService,
-        private managerService: ManagerService) { }
+        private managerService: ManagerService,
+        private jstreeService: JstreeService) { }
 
     ngOnInit() {
         this.nabTabService.nabTabSelected$.subscribe( (navTabName: string) => {
             this.visible = (this.name === navTabName);
             this.managerService.setManagerVisible(this.visible);
+
+            if( this.visible )
+                this.subscribeVhostTree();
+            else if( !this.vhostTreeSubs.isUnsubscribed ) {
+                this.vhostTreeSubs.unsubscribe();
+                this.managerTypeName = null;
+                this.vhostNode = null;
+            }
         });
+
+    }
+
+    private subscribeVhostTree() {
+        this.vhostTreeSubs = this.jstreeService.vhostNodeSelected$.subscribe(
+            vhostNode => {
+                this.vhostNode = vhostNode;
+                switch(vhostNode.type) {
+                    case 'VHost':
+                        this.managerTypeName = 'VHost';
+                        break;
+                    case 'Live':
+                        this.managerTypeName = 'Application';
+                        break;
+                    case 'LiveStream':
+                        this.managerTypeName = 'Application';
+                        break;
+                }
+            }
+        );
     }
 
     onClickTab() {
 
+    }
+
+    setManagerType(typeName: string) {
+        this.managerTypeName = typeName;
+    }
+
+    getTabNames() {
+        let curManagerType = {};
+        this.managerTypes.some( (managerType) => {
+            if( managerType.typeName === this.managerTypeName ) {
+                curManagerType = managerType;
+                return true;
+            }
+        });
+
+        return curManagerType;
     }
 }

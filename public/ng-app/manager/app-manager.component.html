@@ -1,0 +1,8 @@
+<div class="col-md-9">
+    <router-outlet></router-outlet>
+</div>
+<div class="col-md-3">
+    <nav class="list-group">
+        <a *ngFor="let tabName of tabNames" [routerLink]="['manager/' + tabName.urlName]" routerLinkActive="active" class="list-group-item">{{tabName.name}}</a>
+    </nav>
+</div>

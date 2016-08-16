@@ -1,8 +1,13 @@
 <div id="manager-header" class="row">
-    <h2><strong>관리자 기능 </strong><small>스트림 파일</small></h2>
+    <h2>
+        <strong *ngIf="managerTypeName">{{managerTypeName}} 관리 </strong>
+
+        <small *ngIf="vhostNode">{{vhostNode.text}}</small>
+        <small *ngIf="!vhostNode">서버정보 탭에서 VHost나 Application을 선택하세요</small>
+    </h2>
 </div>
 <div class="row">
-    <div id="live-manager">
+    <div *ngIf="managerTypeName">
         <div class="col-md-9">
             <router-outlet></router-outlet>
             <!--<tab-panels class="tab-content" #tabPanels
@@ -20,9 +25,7 @@
         </div>
         <div class="col-md-3">
             <nav class="list-group">
-                <a *ngFor="let tabName of tabNames" (click)="onClickTab(tabName)" [class.active]="" class="list-group-item"></a>
-                <a href="#" (click)="" class="list-group-item">{{tabNames[0]}}</a>
-                <a [routerLink]="['manager/transcoder']" routerLinkActive="active" class="list-group-item">{{tabNames[1]}}</a>
+                <a *ngFor="let tabName of getTabNames().tabs" [routerLink]="[tabName.urlName, vhostNode.id]" routerLinkActive="active" class="list-group-item">{{tabName.name}}</a>
              </nav>
             <!--<tabs [tabsClasses]="'list-group'"
                   [tabClasses]="'list-group-item'"

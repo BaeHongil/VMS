@@ -7,12 +7,17 @@ import { ManagerTranscoder } from './manager-transcoder.component';
 
 const routerConfig: RouterConfig = [
     {
-        path: 'manager/streamfiles',
-        component: ManagerStreamFiles
-    },
-    {
-        path: 'manager/transcoder',
-        component: ManagerTranscoder
+        path: 'manager',
+        children: [
+            {
+                path: 'streamfiles/:id',
+                component: ManagerStreamFiles
+            },
+            {
+                path: 'transcoder/:id',
+                component: ManagerTranscoder
+            }
+        ]
     }
 ];
 

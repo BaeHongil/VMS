@@ -18,23 +18,72 @@ router.get('/vhost-tree-nodes', (req, res, next) => {
             res.json( wowzaLib.getJstreeData(vhosts) );
         })
         .catch( err => {
-            console.error(err);
-            res.status(500).end();
-        });
+            handleError(res, err);
+        })
 });
 
 router.get('/:vhostName/:appName/streamfiles', (req, res, next) => {
-    var vhostName = req.params.vhostName;
-    var appName = req.params.appName;
+    let vhostName = req.params.vhostName;
+    let appName = req.params.appName;
 
     wowzaManagerLib.getStreamFiles(baseUrl, vhostName, appName)
         .then( streamFiles => {
             res.json(streamFiles);
         })
         .catch( err => {
-            console.error(err);
-            res.status(500).end();
+            handleError(res, err);
+        })
+});
+
+router.post('/:vhostName/:appName/streamfiles', (req, res, next) => {
+    let vhostName = req.params.vhostName;
+    let appName = req.params.appName;
+    let body = req.body;
+
+    wowzaManagerLib.createStreamFile(baseUrl, vhostName, appName, body.name, body.uri)
+        .then( statusCode => {
+            res.status(statusCode).end();
+        })
+        .catch( err => {
+            handleError(res, err);
+        })
+});
+
+router.put('/:vhostName/:appName/streamfiles/:streamFileName', (req, res, next) => {
+    let vhostName = req.params.vhostName;
+    let appName = req.params.appName;
+    let steramFileName = req.params.streamFileName;
+    let streamUri = req.body;
+
+    console.log(req);
+    console.log(res);
+
+    wowzaManagerLib.modifyStreamFile(baseUrl, vhostName, appName, steramFileName, streamUri)
+        .then( statusCode => {
+            res.status(statusCode).end();
+        })
+        .catch( err => {
+            handleError(res, err);
         });
 });
+
+router.delete('/:vhostName/:appName/streamfiles/:streamFileName', (req, res, next) => {
+    let vhostName = req.params.vhostName;
+    let appName = req.params.appName;
+    let steramFileName = req.params.streamFileName;
+
+    wowzaManagerLib.deleteStreamFile(baseUrl, vhostName, appName, steramFileName)
+        .then( statusCode => {
+            res.status(statusCode).end();
+        })
+        .catch( err => {
+            handleError(res, err);
+        });
+});
+
+function handleError(res, err) {
+    console.log(err);
+    res.status(500).end();
+}
 
 module.exports = router;

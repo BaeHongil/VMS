@@ -7,12 +7,17 @@ var manager_streamfiles_1 = require('./manager-streamfiles');
 var manager_transcoder_component_1 = require('./manager-transcoder.component');
 var routerConfig = [
     {
-        path: 'manager/streamfiles',
-        component: manager_streamfiles_1.ManagerStreamFiles
-    },
-    {
-        path: 'manager/transcoder',
-        component: manager_transcoder_component_1.ManagerTranscoder
+        path: 'manager',
+        children: [
+            {
+                path: 'streamfiles/:id',
+                component: manager_streamfiles_1.ManagerStreamFiles
+            },
+            {
+                path: 'transcoder/:id',
+                component: manager_transcoder_component_1.ManagerTranscoder
+            }
+        ]
     }
 ];
 exports.managerRouterProvider = [

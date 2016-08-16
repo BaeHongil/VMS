@@ -26,9 +26,7 @@ function requestGetRestApi(url, reqJsonProcessor) {
     var requestOption = {
         method: 'GET',
         url: url,
-        headers: {
-            'Accept': 'application/json'
-        }
+        json: true
     };
     // console.log(callerFuncName);
 
@@ -43,12 +41,92 @@ function requestGetRestApi(url, reqJsonProcessor) {
                 return console.error(callerFuncName +' statusCode : ' + res.statusCode);
             }
 
-            var resJson = JSON.parse(body);
+            var resJson = body;
             reqJsonProcessor(resJson, resolve, reject);
         });
     });
 }
 exports.requestGetRestApi = requestGetRestApi;
+
+function requestPostRestApi(url, body, reqJsonProcessor) {
+    var callerFuncName = getFuncName(true);
+    var requestOption = {
+        method: 'POST',
+        url: url,
+        json: true,
+        body: body
+    };
+
+    return new Promise( (resolve, reject) => {
+        request(requestOption, (err, res, body) => {
+            if (err) {
+                reject(err);
+                return console.error(callerFuncName +' throw err');
+            }
+            /*if (res.statusCode != 200) {
+                reject(callerFuncName + ' statusCode is not 200');
+                return console.error(callerFuncName +' statusCode : ' + res.statusCode);
+            }*/
+
+            var resJson = body;
+            reqJsonProcessor(resJson, res.statusCode, resolve, reject);
+        });
+    });
+}
+exports.requestPostRestApi = requestPostRestApi;
+
+function requestPutRestApi(url, body, reqJsonProcessor) {
+    var callerFuncName = getFuncName(true);
+    var requestOption = {
+        method: 'PUT',
+        url: url,
+        json: true,
+        body: body
+    };
+
+    return new Promise( (resolve, reject) => {
+        request(requestOption, (err, res, body) => {
+            if (err) {
+                reject(err);
+                return console.error(callerFuncName +' throw err');
+            }
+            /*if (res.statusCode != 200) {
+             reject(callerFuncName + ' statusCode is not 200');
+             return console.error(callerFuncName +' statusCode : ' + res.statusCode);
+             }*/
+
+            var resJson = body;
+            reqJsonProcessor(resJson, res.statusCode, resolve, reject);
+        });
+    });
+}
+exports.requestPutRestApi = requestPutRestApi;
+
+function requestDeleteRestApi(url, reqJsonProcessor) {
+    var callerFuncName = getFuncName(true);
+    var requestOption = {
+        method: 'DELETE',
+        json: true,
+        url: url
+    };
+
+    return new Promise( (resolve, reject) => {
+        request(requestOption, (err, res, body) => {
+            if (err) {
+                reject(err);
+                return console.error(callerFuncName +' throw err');
+            }
+            if (res.statusCode != 200) {
+                reject(callerFuncName + ' statusCode is not 200');
+                return console.error(callerFuncName +' statusCode : ' + res.statusCode);
+            }
+
+            var resJson = body;
+            reqJsonProcessor(resJson, res.statusCode, resolve, reject);
+        });
+    });
+}
+exports.requestDeleteRestApi = requestDeleteRestApi;
 
 function getBaseUrl(ip, port) {
     var url = 'http://' + ip + ':' + port;
