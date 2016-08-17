@@ -3,20 +3,11 @@
  */
 /// <reference path="../js/clappr-rtmp.d.ts" />
 import { Component, AfterViewInit, ElementRef } from '@angular/core';
-import { NavTabs } from './nav-tab/nav-tabs.component';
-import { VHostJsTree } from './jstree/vhost-jstree.component';
-import { ConnJsTree } from './jstree/conn-jstree.component';
-import { Players } from './player/players.component';
-import { Manager } from './manager/manager.component';
-import { JstreeService } from './jstree/jstree.service';
-import { NabTabService } from "./nav-tab/nav-tab.service";
 
 @Component({
     moduleId: module.id,
     selector: 'vms-app',
-    templateUrl: 'app.component.html',
-    directives: [NavTabs, VHostJsTree, ConnJsTree, Players, Manager],
-    providers: [JstreeService, NabTabService]
+    templateUrl: 'app.component.html'
 })
 export class AppComponent implements AfterViewInit {
     tabNames = ['Monitoring', 'DVR', 'Manager'];

@@ -2,12 +2,9 @@
  * Created by manager on 2016-08-08.
  */
 import { Component, Input, OnInit } from '@angular/core';
-import { ManagerStreamFiles } from './manager-streamfiles';
 import { ManagerService } from './manager.service';
-import { TabPanel, TabPanels, Tabs } from '../tab/index';
 import { NabTabService } from "../nav-tab/nav-tab.service";
-import { managerRouterProvider } from './manager.routes';
-import {ROUTER_DIRECTIVES, Router} from "@angular/router";
+import {Router} from "@angular/router";
 import {JstreeService} from "../jstree/jstree.service";
 import {Subscription} from "rxjs/Rx";
 
@@ -15,8 +12,7 @@ import {Subscription} from "rxjs/Rx";
     moduleId: module.id,
     selector: 'manager-pane',
     templateUrl: 'manager.component.html',
-    directives: [ManagerStreamFiles, Tabs, TabPanels, TabPanel, ROUTER_DIRECTIVES],
-    providers: [ManagerService, managerRouterProvider]
+    providers: [ManagerService]
 })
 export class Manager implements OnInit {
     @Input() name: string;
@@ -66,10 +62,12 @@ export class Manager implements OnInit {
             this.visible = (this.name === navTabName);
             this.managerService.setManagerVisible(this.visible);
 
-            if( this.visible )
+            if( this.visible ) {
                 this.subscribeVhostTree();
+            }
             else if( !this.vhostTreeSubs.isUnsubscribed ) {
                 this.vhostTreeSubs.unsubscribe();
+                this.routerInit();
                 this.managerTypeName = null;
                 this.vhostNode = null;
             }
@@ -99,7 +97,6 @@ export class Manager implements OnInit {
     private routerInit() {
         let linkUri = '/manager';
         this.router.navigateByUrl(linkUri);
-
     }
 
     onClickTab() {

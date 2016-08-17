@@ -3,6 +3,7 @@
  */
 import { Component, Input, OnInit } from '@angular/core';
 import { NabTabService } from './nav-tab.service';
+import {Router} from "@angular/router";
 
 @Component({
     moduleId: module.id,
@@ -14,7 +15,9 @@ export class NavTabs implements OnInit {
     seletedTabIndex = 0;
     seletedTabName: string;
 
-    constructor(private nabTabService: NabTabService) {}
+    constructor(
+        private nabTabService: NabTabService,
+        private router: Router) {}
 
     ngOnInit() {
         this.seletedTabName = this.tabNames[0];

@@ -48,12 +48,8 @@ export class ManagerService {
     }
 
     deleteStreamFile(vhostName: string, appName: string, streamFileName: string): Observable<string> {
-        let headers = new Headers({
-            'Content-Type': 'application/json'
-        });
-
         return this.http
-            .delete(`vms/${vhostName}/${appName}/streamfiles/${streamFileName}`, { headers: headers })
+            .delete(`vms/${vhostName}/${appName}/streamfiles/${streamFileName}`)
             .map( (res: Response) => res.status )
             .catch(this.handleError);
     }
