@@ -6,6 +6,7 @@ import { ManagerService } from './manager.service';
 import { JstreeService } from '../jstree/jstree.service';
 import { Subscription, Observable } from "rxjs/Rx";
 import {ActivatedRoute} from "@angular/router";
+import {StreamFile, ConnectConfig} from './streamfile';
 
 @Component({
     moduleId: module.id,
@@ -21,16 +22,21 @@ export class ManagerStreamFiles implements OnInit {
     routeSubs: Subscription;
     vhostName: string;
     appName: string;
-    streamFiles: Observable<Object>;
-    targetStreamFile = {
-        name: '',
-        uri: ''
-    };
+    streamFiles: Observable<StreamFile[]>;
     isStreamFile = {
         name: true,
         uri: true
     };
     isDuplicateFileName = false;
+    mediaCasterTypes = [
+        'rtp',
+        'rtp-record',
+        'shoutcast',
+        'shoutcast-record',
+        'liverepeater'
+    ];
+    connectConfig = new ConnectConfig('_definst_', this.mediaCasterTypes[0]);
+    targetStreamFile = new StreamFile();
 
     constructor(
         private managerService: ManagerService,
@@ -60,8 +66,8 @@ export class ManagerStreamFiles implements OnInit {
         this.vhostName = splitedId[0];
     }
 
-    actionBtnClick(streamFileName: string) {
-        this.targetStreamFile.name = streamFileName;
+    actionBtnClick(streamFile: StreamFile) {
+        this.targetStreamFile = Object.assign({}, streamFile);
     }
 
     createOkBtnClick() {
@@ -87,14 +93,11 @@ export class ManagerStreamFiles implements OnInit {
         this.isStreamFile.uri = ( this.targetStreamFile.uri ? true : false );
 
         if( this.isStreamFile.uri ) {
-            let res = this.managerService.putStreamFile(this.vhostName, this.appName, this.targetStreamFile.name, this.targetStreamFile.uri);
+            let res = this.managerService.putStreamFile(this.vhostName, this.appName, this.targetStreamFile.name, this.targetStreamFile);
             res.subscribe(status => {
                 this.getStreamFiles();
-                jQuery('#modify-streamfile').modal('hide');
-            }, err => {
-                console.error(err);
-                jQuery('#modify-streamfile').modal('hide');
-            });
+            }, console.error);
+            jQuery('#modify-streamfile').modal('hide');
             this.resetModalData();
         }
     }
@@ -103,19 +106,26 @@ export class ManagerStreamFiles implements OnInit {
         let res = this.managerService.deleteStreamFile(this.vhostName, this.appName, this.targetStreamFile.name);
         res.subscribe(status => {
             this.getStreamFiles();
-            jQuery('#delete-streamfile').modal('hide');
-        }, err => {
-            console.error(err);
-            jQuery('#delete-streamfile').modal('hide');
-        });
+        }, console.error);
+        jQuery('#delete-streamfile').modal('hide');
         this.resetModalData();
     }
 
-    private resetModalData() {
+    connectOkBtnClick() {
+        let res = this.managerService.connectStreamFile(this.vhostName, this.appName, this.targetStreamFile.name, this.connectConfig);
+        res.subscribe(status => {
+            this.getStreamFiles();
+        }, console.error);
+        jQuery('#connect-streamfile').modal('hide');
+        this.resetModalData();
+    }
+
+    resetModalData() {
         this.targetStreamFile.name = '';
         this.targetStreamFile.uri = '';
         this.isStreamFile.name = true;
         this.isStreamFile.uri = true;
         this.isDuplicateFileName = false;
+        this.connectConfig.mediaCasterType = '';
     }
 }

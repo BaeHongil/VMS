@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import { Observable } from "rxjs/Observable";
 import { Subject } from "rxjs/Rx";
+import {StreamFile, ConnectConfig} from "./streamfile";
 
 @Injectable()
 export class ManagerService {
@@ -18,13 +19,13 @@ export class ManagerService {
         this.managerVisibleSubs.next(visible);
     }
 
-    getStreamFiles(vhostName: string, appName: string): Observable<Object> {
+    getStreamFiles(vhostName: string, appName: string): Observable<StreamFile[]> {
         let streamFilesObsv = this.http.get(`vms/${vhostName}/${appName}/streamfiles`)
             .map( (res: Response) => res.json());
         return streamFilesObsv;
     }
 
-    postStreamFile(vhostName: string, appName: string, body: Object): Observable<string> {
+    postStreamFile(vhostName: string, appName: string, body: any): Observable<string> {
         let headers = new Headers({
             'Content-Type': 'application/json'
         });
@@ -35,13 +36,13 @@ export class ManagerService {
             .catch(this.handleError);
     }
 
-    putStreamFile(vhostName: string, appName: string, streamFileName: string, streamUri: string): Observable<string> {
+    putStreamFile(vhostName: string, appName: string, streamFileName: string, streamFile: StreamFile): Observable<string> {
         let headers = new Headers({
             'Content-Type': 'application/json'
         });
 
         return this.http
-            .put(`vms/${vhostName}/${appName}/streamfiles/${streamFileName}`, streamUri, { headers: headers })
+            .put(`vms/${vhostName}/${appName}/streamfiles/${streamFileName}`, JSON.stringify(streamFile), { headers: headers })
             .map( (res: Response) => res.status )
             .catch(this.handleError);
     }
@@ -53,6 +54,17 @@ export class ManagerService {
 
         return this.http
             .delete(`vms/${vhostName}/${appName}/streamfiles/${streamFileName}`, { headers: headers })
+            .map( (res: Response) => res.status )
+            .catch(this.handleError);
+    }
+
+    connectStreamFile(vhostName: string, appName: string, streamFileName: string, connectConfig: ConnectConfig): Observable<string> {
+        let headers = new Headers({
+            'Content-Type': 'application/json'
+        });
+
+        return this.http
+            .put(`vms/${vhostName}/${appName}/streamfiles/${streamFileName}/actions/connect`, JSON.stringify(connectConfig), { headers: headers })
             .map( (res: Response) => res.status )
             .catch(this.handleError);
     }

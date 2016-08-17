@@ -5,3 +5,5 @@ exports.Vhost = require('./vhost');
 exports.Application = require('./application');
 exports.Stream = require('./stream');
 exports.JstreeNode = require('./jstreenode');
+exports.StreamFile = require('./streamfile');
+

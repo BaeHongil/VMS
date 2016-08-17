@@ -25,7 +25,7 @@ function requestGetRestApi(url, reqJsonProcessor) {
     var callerFuncName = getFuncName(true);
     var requestOption = {
         method: 'GET',
-        url: url,
+        url: encodeURI(url),
         json: true
     };
     // console.log(callerFuncName);
@@ -52,7 +52,7 @@ function requestPostRestApi(url, body, reqJsonProcessor) {
     var callerFuncName = getFuncName(true);
     var requestOption = {
         method: 'POST',
-        url: url,
+        url: encodeURI(url),
         json: true,
         body: body
     };
@@ -79,7 +79,7 @@ function requestPutRestApi(url, body, reqJsonProcessor) {
     var callerFuncName = getFuncName(true);
     var requestOption = {
         method: 'PUT',
-        url: url,
+        url: encodeURI(url),
         json: true,
         body: body
     };
@@ -107,7 +107,7 @@ function requestDeleteRestApi(url, reqJsonProcessor) {
     var requestOption = {
         method: 'DELETE',
         json: true,
-        url: url
+        url: encodeURI(url)
     };
 
     return new Promise( (resolve, reject) => {

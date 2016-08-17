@@ -3,19 +3,32 @@
  */
 var request = require('request');
 var wowzaLib = require('./wowza-lib');
+var StreamFile = require('../item/streamfile');
 
 function getStreamFiles(baseUrl, vhostName, appName) {
     let url = baseUrl + '/v2/servers/_defaultServer_/vhosts/'
         + vhostName + '/applications/' + appName + '/streamfiles';
 
     return wowzaLib.requestGetRestApi(url, (resJson, resolve, reject) => {
-        var streamIds = resJson.streamFiles.map( (resStreamFile, i) => {
-            return resStreamFile.id;
+        let streamFilesPromises = resJson.streamFiles.map( (resStreamFile, i) => {
+            return getStreamFile(baseUrl, vhostName, appName, resStreamFile.id);
         });
-        resolve(streamIds);
+
+        resolve( Promise.all(streamFilesPromises) );
     });
 }
 exports.getStreamFiles = getStreamFiles;
+
+function getStreamFile(baseUrl, vhostName, appName, streamFileName) {
+    let url = baseUrl + '/v2/servers/_defaultServer_/vhosts/'
+        + vhostName + '/applications/' + appName + '/streamfiles/'
+        + streamFileName;
+
+    return wowzaLib.requestGetRestApi(url, (resJson, resolve, reject) => {
+        let streamFile = new StreamFile(resJson.name, resJson.uri);
+        resolve(streamFile);
+    });
+}
 
 function createStreamFile(baseUrl, vhostName, appName, streamFileName, uri) {
     let url = baseUrl + '/v2/servers/_defaultServer_/vhosts/'
@@ -31,13 +44,11 @@ function createStreamFile(baseUrl, vhostName, appName, streamFileName, uri) {
 }
 exports.createStreamFile = createStreamFile;
 
-function modifyStreamFile(baseUrl, vhostName, appName, streamFileName, uri) {
+function modifyStreamFile(baseUrl, vhostName, appName, streamFileName, streamFile) {
     let url = baseUrl + '/v2/servers/_defaultServer_/vhosts/'
         + vhostName + '/applications/' + appName + '/streamfiles/'
         + streamFileName;
-    let body = {
-        uri: uri
-    };
+    let body = streamFile;
 
     return wowzaLib.requestPutRestApi(url, body, (resJson, statusCode, resolve, reject) => {
         resolve(statusCode);
@@ -56,3 +67,19 @@ function deleteStreamFile(baseUrl, vhostName, appName, streamFileName) {
 }
 exports.deleteStreamFile = deleteStreamFile;
 
+function connectStreamFile(baseUrl, vhostName, appName, streamFileName, appInstanceName, mediaCasterType) {
+    let url = baseUrl + '/v2/servers/_defaultServer_/vhosts/'
+        + vhostName + '/applications/' + appName + '/streamfiles/'
+        + streamFileName + '/actions/connect?connectAppName=' + appName
+        + '&appInstance=' + appInstanceName + '&mediaCasterType=' + mediaCasterType;
+    let body = {};
+
+    return wowzaLib.requestPutRestApi(url, body, (resJson, statusCode, resolve, reject) => {
+        resolve(statusCode);
+    });
+}
+exports.connectStreamFile = connectStreamFile;
+
+/*
+getStreamFiles(wowzaLib.getBaseUrl('192.168.0.183', 8087), '_defaultVHost_', 'live')
+    .then(console.log);*/

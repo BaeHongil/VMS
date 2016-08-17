@@ -1,13 +1,16 @@
 /**
  * Created by manager on 2016-08-12.
  */
-import { RouterConfig, provideRouter } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 import { ManagerStreamFiles } from './manager-streamfiles';
 import { ManagerTranscoder } from './manager-transcoder.component';
+import {ManagerBlank} from "./manager-blank.component";
+import {Manager} from "./manager.component";
 
-const routerConfig: RouterConfig = [
+const managerRoutes: Routes = [
     {
         path: 'manager',
+        component: Manager,
         children: [
             {
                 path: 'streamfiles/:id',
@@ -16,11 +19,13 @@ const routerConfig: RouterConfig = [
             {
                 path: 'transcoder/:id',
                 component: ManagerTranscoder
+            },
+            {
+                path: '',
+                component: ManagerBlank
             }
         ]
     }
 ];
 
-export const managerRouterProvider = [
-    provideRouter(routerConfig)
-];
+export const managerRouting = RouterModule.forChild(managerRoutes);

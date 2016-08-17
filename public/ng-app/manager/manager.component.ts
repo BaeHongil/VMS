@@ -7,7 +7,7 @@ import { ManagerService } from './manager.service';
 import { TabPanel, TabPanels, Tabs } from '../tab/index';
 import { NabTabService } from "../nav-tab/nav-tab.service";
 import { managerRouterProvider } from './manager.routes';
-import { ROUTER_DIRECTIVES } from "@angular/router";
+import {ROUTER_DIRECTIVES, Router} from "@angular/router";
 import {JstreeService} from "../jstree/jstree.service";
 import {Subscription} from "rxjs/Rx";
 
@@ -58,7 +58,8 @@ export class Manager implements OnInit {
     constructor(
         private nabTabService: NabTabService,
         private managerService: ManagerService,
-        private jstreeService: JstreeService) { }
+        private jstreeService: JstreeService,
+        private router: Router) { }
 
     ngOnInit() {
         this.nabTabService.nabTabSelected$.subscribe( (navTabName: string) => {
@@ -73,7 +74,6 @@ export class Manager implements OnInit {
                 this.vhostNode = null;
             }
         });
-
     }
 
     private subscribeVhostTree() {
@@ -91,8 +91,15 @@ export class Manager implements OnInit {
                         this.managerTypeName = 'Application';
                         break;
                 }
+                this.routerInit();
             }
         );
+    }
+
+    private routerInit() {
+        let linkUri = '/manager';
+        this.router.navigateByUrl(linkUri);
+
     }
 
     onClickTab() {

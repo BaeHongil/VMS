@@ -53,12 +53,12 @@ router.put('/:vhostName/:appName/streamfiles/:streamFileName', (req, res, next) 
     let vhostName = req.params.vhostName;
     let appName = req.params.appName;
     let steramFileName = req.params.streamFileName;
-    let streamUri = req.body;
+    let streamFile = req.body;
 
-    console.log(req);
-    console.log(res);
+    console.log(steramFileName);
+    console.log(streamFile);
 
-    wowzaManagerLib.modifyStreamFile(baseUrl, vhostName, appName, steramFileName, streamUri)
+    wowzaManagerLib.modifyStreamFile(baseUrl, vhostName, appName, steramFileName, streamFile)
         .then( statusCode => {
             res.status(statusCode).end();
         })
@@ -73,6 +73,23 @@ router.delete('/:vhostName/:appName/streamfiles/:streamFileName', (req, res, nex
     let steramFileName = req.params.streamFileName;
 
     wowzaManagerLib.deleteStreamFile(baseUrl, vhostName, appName, steramFileName)
+        .then( statusCode => {
+            res.status(statusCode).end();
+        })
+        .catch( err => {
+            handleError(res, err);
+        });
+});
+
+router.put('/:vhostName/:appName/streamfiles/:streamFileName/actions/connect', (req, res, next) => {
+    let vhostName = req.params.vhostName;
+    let appName = req.params.appName;
+    let steramFileName = req.params.streamFileName;
+    let connectConfig = req.body;
+    if( !connectConfig.appInstanceName )
+        connectConfig.appInstanceName = '_definst_';
+
+    wowzaManagerLib.connectStreamFile(baseUrl, vhostName, appName, steramFileName, connectConfig.appInstanceName, connectConfig.mediaCasterType)
         .then( statusCode => {
             res.status(statusCode).end();
         })
