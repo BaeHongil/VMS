@@ -89,7 +89,22 @@ router.put('/:vhostName/:appName/streamfiles/:streamFileName/actions/connect', (
     if( !connectConfig.appInstanceName )
         connectConfig.appInstanceName = '_definst_';
 
-    wowzaManagerLib.connectStreamFile(baseUrl, vhostName, appName, steramFileName, connectConfig.appInstanceName, connectConfig.mediaCasterType)
+    wowzaManagerLib.connectStreamFile(baseUrl, vhostName, appName, connectConfig.appInstanceName, steramFileName, connectConfig.mediaCasterType)
+        .then( statusCode => {
+            res.status(statusCode).end();
+        })
+        .catch( err => {
+            handleError(res, err);
+        });
+});
+
+router.put('/:vhostName/:appName/:appInstanceName/:incomingStreamName/actions/disconnect', (req, res, next) => {
+    let vhostName = req.params.vhostName;
+    let appName = req.params.appName;
+    let appInstanceName = req.params.appInstanceName;
+    let incomingStreamName = req.params.incomingStreamName;
+
+    wowzaManagerLib.disconnectIncomingStream(baseUrl, vhostName, appName, appInstanceName, incomingStreamName)
         .then( statusCode => {
             res.status(statusCode).end();
         })

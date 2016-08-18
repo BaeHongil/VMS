@@ -4,6 +4,7 @@ import { JstreeService } from './jstree.service';
 import { Subscription } from "rxjs/Rx";
 
 @Component({
+    moduleId: module.id,
     selector: 'conn-jstree',
     template: '<div></div>'
 })

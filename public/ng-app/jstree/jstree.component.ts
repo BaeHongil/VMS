@@ -19,7 +19,7 @@ export abstract class JsTree implements OnInit {
 
     ngOnInit() {
         jQuery(this.el).jstree(this.jsTreeOpt);
-        this.jsTree = jQuery(this.el).jstree();
+        this.jsTree = jQuery(this.el).jstree(true);
 
         this.setChangedJsTreeListener();
     }

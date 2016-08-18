@@ -65,6 +65,13 @@ export class ManagerService {
             .catch(this.handleError);
     }
 
+    disconnectIncomingStream(vhostName: string, appName: string, appInstName: string, incomingStreamName: string): Observable<string> {
+        return this.http
+            .put(`vms/${vhostName}/${appName}/${appInstName}/${incomingStreamName}/actions/disconnect`, '')
+            .map( (res: Response) => res.status )
+            .catch(this.handleError);
+    }
+
     private handleError(error: any) {
         let errMsg = (error.message) ? error.message :
             error.status ? `${error.status} - ${error.statusText}` : 'Server error';

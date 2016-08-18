@@ -48,7 +48,7 @@ export class AppComponent implements AfterViewInit {
                 'icon': 'css/jstree/live-stream.png'
             }
         },
-        'plugins': ['types']
+        'plugins': ['types', 'button']
     };
     connJsTreeOpt = {
         'core': {

@@ -12,16 +12,20 @@ const appRoutes: Routes = [
         path: 'manager',
         children: [
             {
+                path: '',
+                component: ManagerBlank
+            },
+            {
+                path: ':id',
+                component: ManagerBlank
+            },
+            {
                 path: 'streamfiles/:id',
                 component: ManagerStreamFiles
             },
             {
                 path: 'transcoder/:id',
                 component: ManagerTranscoder
-            },
-            {
-                path: '',
-                component: ManagerBlank
             }
         ]
     }

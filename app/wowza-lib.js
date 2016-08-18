@@ -289,7 +289,7 @@ exports.getJstreeData = function getJstreeData(vhosts) {
 
     var data = vhosts.map( vhost => {
         var vhostNode = new JstreeNode(vhost.vhostName, vhost.vhostName, 'VHost');
-        vhostNode.state = {opened : true};
+        vhostNode.state = { opened : true };
         vhostNode.data = {
             vhostIp : vhost.vhostIp,
             vhostStreamingPort : vhost.vhostStreamingPort
@@ -297,10 +297,12 @@ exports.getJstreeData = function getJstreeData(vhosts) {
         vhostNode.children = vhost.applications.map( application => {
             var appNodeId = vhostNode.id + '>' + application.appName;
             var applicationNode = new JstreeNode(appNodeId, application.appName, application.appType);
+            applicationNode.state = { opened : true };
             applicationNode.children = application.incomingStreams.map( incomingStream => {
                 var streamNodeId = appNodeId + '>' + incomingStream.streamName;
                 var incomingStreamNode = new JstreeNode(streamNodeId, incomingStream.streamName, application.appType + 'Stream');
                 incomingStreamNode.data = getStreamAddr(
+                        vhost.vhostName,
                         vhost.vhostIp,
                         vhost.vhostStreamingPort,
                         application.appName,
@@ -320,8 +322,12 @@ exports.getJstreeData = function getJstreeData(vhosts) {
     return data;
 };
 
-function getStreamAddr(ip, port, appName, appInstanceName, streamName) {
+function getStreamAddr(vhostName, ip, port, appName, appInstanceName, streamName) {
     return {
+        vhostName: vhostName,
+        appName: appName,
+        appInstanceName: appInstanceName,
+        streamName: streamName,
         hls : getHlsAddr(ip, port, appName, appInstanceName, streamName),
         rtmp : getRtmpAddr(ip, port, appName, appInstanceName, streamName)
     };

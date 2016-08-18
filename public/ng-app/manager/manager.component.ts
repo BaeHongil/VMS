@@ -11,8 +11,7 @@ import {Subscription} from "rxjs/Rx";
 @Component({
     moduleId: module.id,
     selector: 'manager-pane',
-    templateUrl: 'manager.component.html',
-    providers: [ManagerService]
+    templateUrl: 'manager.component.html'
 })
 export class Manager implements OnInit {
     @Input() name: string;
@@ -67,9 +66,9 @@ export class Manager implements OnInit {
             }
             else if( !this.vhostTreeSubs.isUnsubscribed ) {
                 this.vhostTreeSubs.unsubscribe();
-                this.routerInit();
                 this.managerTypeName = null;
                 this.vhostNode = null;
+                this.routerInit(false);
             }
         });
     }
@@ -89,14 +88,16 @@ export class Manager implements OnInit {
                         this.managerTypeName = 'Application';
                         break;
                 }
-                this.routerInit();
+                this.routerInit(true);
             }
         );
     }
 
-    private routerInit() {
-        let linkUri = '/manager';
-        this.router.navigateByUrl(linkUri);
+    private routerInit(isParam: boolean) {
+        let link = ['/manager'];
+        if( isParam && this.vhostNode )
+            link.push(this.vhostNode.id);
+        this.router.navigate(link);
     }
 
     onClickTab() {

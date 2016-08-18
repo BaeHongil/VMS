@@ -21,10 +21,10 @@ module.exports = function(server) {
             websocketAddrs.forEach( websocketAddr => {
                 var ws = new WebSocket(websocketAddr);
                 ws.on('error', function (error) {
-                    console.error('Wowza Vhost와의 Websocket 연결 실패')
+                    console.error(websocketAddr + ' - Wowza Vhost와의 Websocket 연결 실패')
                 });
                 ws.on('open', function(){
-                    console.log('Wowza Vhost와의 Websocket 연결 성공');
+                    console.log(websocketAddr + ' - Wowza Vhost와의 Websocket 연결 성공');
                 });
                 ws.on('message', function (data, flags) {
                     websocket.emit('incomingStream', JSON.parse(data));

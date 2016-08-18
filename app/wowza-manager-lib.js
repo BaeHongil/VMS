@@ -67,7 +67,7 @@ function deleteStreamFile(baseUrl, vhostName, appName, streamFileName) {
 }
 exports.deleteStreamFile = deleteStreamFile;
 
-function connectStreamFile(baseUrl, vhostName, appName, streamFileName, appInstanceName, mediaCasterType) {
+function connectStreamFile(baseUrl, vhostName, appName, appInstanceName, streamFileName, mediaCasterType) {
     let url = baseUrl + '/v2/servers/_defaultServer_/vhosts/'
         + vhostName + '/applications/' + appName + '/streamfiles/'
         + streamFileName + '/actions/connect?connectAppName=' + appName
@@ -79,6 +79,18 @@ function connectStreamFile(baseUrl, vhostName, appName, streamFileName, appInsta
     });
 }
 exports.connectStreamFile = connectStreamFile;
+
+function disconnectIncomingStream(baseUrl, vhostName, appName, appInstanceName, incomingStreamName) {
+    let url = baseUrl + '/v2/servers/_defaultServer_/vhosts/'
+        + vhostName + '/applications/' + appName + '/instances/' + appInstanceName
+        + '/incomingstreams/' + incomingStreamName + '/actions/' + 'disconnectStream';
+    let body = {};
+
+    return wowzaLib.requestPutRestApi(url, body, (resJson, statusCode, resolve, reject) => {
+        resolve(statusCode);
+    });
+}
+exports.disconnectIncomingStream = disconnectIncomingStream;
 
 /*
 getStreamFiles(wowzaLib.getBaseUrl('192.168.0.183', 8087), '_defaultVHost_', 'live')

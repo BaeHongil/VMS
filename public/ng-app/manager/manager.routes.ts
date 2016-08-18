@@ -21,7 +21,7 @@ const managerRoutes: Routes = [
                 component: ManagerTranscoder
             },
             {
-                path: '',
+                path: ':id',
                 component: ManagerBlank
             }
         ]

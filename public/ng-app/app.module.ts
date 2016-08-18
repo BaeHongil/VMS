@@ -14,6 +14,7 @@ import {VHostJsTree} from "./jstree/vhost-jstree.component";
 import {ConnJsTree} from "./jstree/conn-jstree.component";
 import {Players} from "./player/players.component";
 import {Manager} from "./manager/manager.component";
+import {ManagerService} from "./manager/manager.service";
 
 @NgModule({
     declarations: [
@@ -32,7 +33,8 @@ import {Manager} from "./manager/manager.component";
     ],
     providers: [
         NabTabService,
-        JstreeService
+        JstreeService,
+        ManagerService
     ],
     bootstrap: [AppComponent]
 })

@@ -25,8 +25,9 @@ export class Players implements OnInit, AfterViewInit {
     vhostTreeSubs: Subscription;
     nabTabSelectedSubs: Subscription;
 
-    constructor(private jstreeService: JstreeService,
-                private nabTabService: NabTabService) { }
+    constructor(
+        private jstreeService: JstreeService,
+        private nabTabService: NabTabService) { }
 
     @Input('num')
     set playerNumStr(playerNumStr: string) {
@@ -67,8 +68,8 @@ export class Players implements OnInit, AfterViewInit {
             })
             .droppable({
                 drop: (event, ui) => {
-                    let src = $(ui.draggable);
-                    let target = $(this);
+                    let src = jQuery(ui.draggable);
+                    let target = jQuery(event.target);
 
                     let srcIndex = parseInt( src.attr('id').charAt(5) );
                     let targetIndex = parseInt( target.attr('id').charAt(5) );

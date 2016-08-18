@@ -19,7 +19,7 @@ var JsTree = (function () {
     }
     JsTree.prototype.ngOnInit = function () {
         jQuery(this.el).jstree(this.jsTreeOpt);
-        this.jsTree = jQuery(this.el).jstree();
+        this.jsTree = jQuery(this.el).jstree(true);
         this.setChangedJsTreeListener();
     };
     JsTree.prototype.setChangedJsTreeListener = function () {
